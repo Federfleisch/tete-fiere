@@ -14,8 +14,10 @@ Site web de **Tête Fière**, marque de **boucles d'oreilles artisanales en rés
 
 ## Hébergement et déploiement
 
-- **GitHub Pages**, publié depuis la branche **`main`**, dossier racine. Le fichier `CNAME` contient `tetefiere.be`.
-- Tout ce qui est fusionné dans `main` est publié. Passer par une **pull request**, ne pas pousser directement sur `main`.
+- **GitHub Pages**, publié depuis la branche **`main`**, dossier **`/docs`** (et non la racine). Le fichier `docs/CNAME` contient `tetefiere.be`.
+- **Seul le contenu de `docs/` est publié sur le site.** Les fichiers à la racine du repo (dont ce `CLAUDE.md`) ne sont jamais servis sur tetefiere.be. Ne rien mettre de privé ou d'interne dans `docs/`.
+- Attention : le repo GitHub est **public**, donc tout reste lisible sur github.com même hors de `docs/`. Ne jamais y mettre de secret, de mot de passe ni de donnée personnelle.
+- Tout ce qui est fusionné dans `main` puis situé dans `docs/` est publié. Passer par une **pull request**, ne pas pousser directement sur `main`.
 - Le DNS est géré chez **OVH** : 4 enregistrements A et 4 AAAA vers GitHub Pages sur `@`, un CNAME `www` vers `federfleisch.github.io.`. Ne jamais toucher aux MX, SPF, NS et enregistrements de messagerie OVH.
 - Site statique : HTML et CSS écrits à la main, sans framework ni dépendance externe.
 
@@ -23,22 +25,25 @@ Site web de **Tête Fière**, marque de **boucles d'oreilles artisanales en rés
 
 | Chemin | Rôle |
 |---|---|
-| `index.html` | Page publique actuelle : « Notre site arrive bientôt. » |
-| `apercu-ezx76smzgd/index.html` | **Aperçu privé** de la future page d'accueil, accessible sur `tetefiere.be/apercu-ezx76smzgd/` |
-| `assets/` | Logos, fond identitaire |
-| `assets/photos/` | Photos produits optimisées (170 à 320 Ko chacune) |
-| `CNAME` | Domaine personnalisé GitHub Pages |
+| `CLAUDE.md` | Ce fichier de contexte (hors du site publié) |
+| `docs/` | **Racine du site publié** par GitHub Pages |
+| `docs/index.html` | Page publique actuelle : « Notre site arrive bientôt. » |
+| `docs/apercu-ezx76smzgd/index.html` | **Aperçu privé** de la future page d'accueil, accessible sur `tetefiere.be/apercu-ezx76smzgd/` |
+| `docs/assets/` | Logos, fond identitaire |
+| `docs/assets/photos/` | Photos produits optimisées (170 à 320 Ko chacune) |
+| `docs/CNAME` | Domaine personnalisé GitHub Pages |
+| `docs/.nojekyll` | Demande à GitHub de servir les fichiers tels quels, sans traitement Jekyll |
 
 ### Aperçu privé
 - Ce n'est **pas** de la sécurité, seulement un lien difficile à deviner. La page contient `noindex, nofollow, noarchive`.
 - Ne jamais mentionner ce dossier dans `robots.txt`, ni le lier depuis la page publique.
-- Au lancement : déplacer le contenu à la racine et supprimer le dossier d'aperçu.
+- Au lancement : déplacer le contenu à la racine de `docs/` et supprimer le dossier d'aperçu.
 
 ## Identité visuelle
 
-- **Logo** `assets/logo.svg` : version normale, bleu nuit `#110F39`, pour fond clair.
-- **Logo outlined** `assets/logo-outlined.svg` : avec contour blanc, à utiliser **sur un fond** (image, couleur).
-- **Fond identitaire** `assets/main-background.jpg` : 3840x2160, fluide rose et bleu. Il s'affiche en `cover`, **centré**. Le logo outlined se pose au centre, à environ 50 % de la largeur de l'image affichée (voir la maquette `logo-situation.png` dans Dropbox).
+- **Logo** `docs/assets/logo.svg` : version normale, bleu nuit `#110F39`, pour fond clair.
+- **Logo outlined** `docs/assets/logo-outlined.svg` : avec contour blanc, à utiliser **sur un fond** (image, couleur).
+- **Fond identitaire** `docs/assets/main-background.jpg` : 3840x2160, fluide rose et bleu. Il s'affiche en `cover`, **centré**. Le logo outlined se pose au centre, à environ 50 % de la largeur de l'image affichée (voir la maquette `logo-situation.png` dans Dropbox).
 - Couleurs utilisées sur la page : bleu nuit `#110F39`, rose `#fde9f2`, bleu clair `#e9f0ff`, crème `#fffaf6`.
 - **Typographie : polices système.** La police `Billion Dreams` (Dropbox, `_BASE/03-fonts`) est fournie en version `PERSONAL` : ne pas l'utiliser tant que la licence n'est pas vérifiée pour un usage commercial.
 
