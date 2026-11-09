@@ -4,39 +4,179 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <title>Tête Fière (aperçu privé)</title>
+  <title>Tête Fière | Boucles d'oreilles artisanales</title>
+  <meta name="description" content="Boucles d'oreilles artisanales en résine, créées à la main, avec cœur. Des petites pièces qui font toute la différence.">
+  <link rel="preload" as="image" href="../assets/main-background.jpg">
   <style>
-    :root { --navy: #110F39; }
+    :root {
+      --navy: #110F39;
+      --navy-soft: #3b3a63;
+      --pink: #fde9f2;
+      --blue: #e9f0ff;
+      --cream: #fffaf6;
+      --accent: #3d4fd6;
+      --radius: 20px;
+      --gutter: 16px;
+    }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
     body {
       margin: 0;
+      color: var(--navy);
+      background: var(--cream);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.6;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    a:focus-visible, .btn:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; border-radius: 6px; }
+    h1, h2, h3 { line-height: 1.15; margin: 0; }
+    h2 { font-size: clamp(1.75rem, 5vw, 2.5rem); margin-bottom: 1rem; }
+    p { margin: 0 0 1rem; }
+    .wrap { width: min(1080px, 100% - 2 * var(--gutter)); margin-inline: auto; }
+
+    /* Hero */
+    .hero {
       min-height: 100vh;
       min-height: 100dvh;
       display: grid;
       place-items: center;
-      padding: 24px 16px;
+      padding: 40px var(--gutter);
       background: #8fb4ee url("../assets/main-background.jpg") center / cover no-repeat;
-      color: var(--navy);
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       text-align: center;
     }
-    main { display: grid; gap: 1.5rem; justify-items: center; }
-    h1 { margin: 0; }
-    .logo { width: min(70vw, 520px); height: auto; }
-    .tag {
+    .hero-inner { display: grid; gap: 1.25rem; justify-items: center; }
+    .hero h1 { margin: 0; }
+    .logo { width: min(86vw, 560px); height: auto; }
+    .pill {
       margin: 0;
-      padding: 0.6rem 1.4rem;
+      padding: 0.7rem 1.5rem;
       border-radius: 999px;
       background: #fff;
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
       font-weight: 600;
+      font-size: clamp(1.05rem, 2.8vw, 1.3rem);
+      max-width: 36ch;
     }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin-top: 0.25rem; }
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      border: 2px solid var(--navy);
+      background: var(--navy);
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .btn:hover { background: #fff; color: var(--navy); }
+    .btn.alt { background: #fff; color: var(--navy); }
+    .btn.alt:hover { background: var(--navy); color: #fff; }
+
+    /* Sections */
+    section { padding: clamp(56px, 9vw, 104px) 0; }
+    .intro { max-width: 60ch; font-size: 1.2rem; color: var(--navy-soft); }
+
+    .creations { background: var(--cream); }
+    .grid {
+      display: grid;
+      gap: 20px;
+      margin-top: 2rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 760px) {
+      .grid { grid-template-columns: repeat(3, 1fr); align-items: start; }
+    }
+    figure { margin: 0; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: 0 6px 24px rgba(17, 15, 57, 0.08); }
+    figure img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
+    figure:first-child img { object-position: 55% 50%; }
+    figcaption { padding: 0.9rem 1.1rem 1.1rem; font-weight: 600; }
+
+    .boutique { background: var(--pink); }
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      max-width: 640px;
+      box-shadow: 0 6px 24px rgba(17, 15, 57, 0.08);
+    }
+    .card h3 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .address { font-weight: 600; margin-bottom: 1rem; }
+
+    .contact { background: var(--blue); }
+    .links { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; gap: 0.75rem; }
+    .links a { font-weight: 600; font-size: 1.1rem; }
+
+    footer { background: var(--navy); color: #fff; text-align: center; padding: 28px var(--gutter); }
+    footer p { margin: 0; }
   </style>
 </head>
 <body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1><img class="logo" src="../assets/logo-outlined.svg" alt="Tête Fière !" width="958" height="503"></h1>
+      <p class="pill">Boucles d'oreilles artisanales <span aria-hidden="true">✨</span><br>Créées à la main, avec cœur <span aria-hidden="true">🤍</span></p>
+      <div class="hero-actions">
+        <a class="btn" href="#creations">Découvrir les créations</a>
+        <a class="btn alt" href="#boutique">Où les trouver</a>
+      </div>
+    </div>
+  </header>
+
   <main>
-    <h1><img class="logo" src="../assets/logo-outlined.svg" alt="Tête Fière !" width="958" height="503"></h1>
-    <p class="tag">Aperçu privé : version de travail</p>
+    <section class="creations" id="creations">
+      <div class="wrap">
+        <h2>Des petites pièces qui font toute la différence</h2>
+        <p class="intro">Chaque paire est façonnée à la main en résine : fleurs, cœurs, étoiles, pampilles&hellip; La petite touche de couleur pour sublimer vos tenues <span aria-hidden="true">🌸</span></p>
+
+        <div class="grid">
+          <figure>
+            <img src="../assets/photos/creations-douceur.jpg" alt="Boucles d'oreilles en résine rose nacré posées sur un bois flotté, avec une ardoise « Tête Fière » en arrière-plan" width="1600" height="1066" loading="lazy">
+            <figcaption>Des teintes douces et nacrées</figcaption>
+          </figure>
+          <figure>
+            <img src="../assets/photos/creations-bijoux.jpg" alt="Boucles d'oreilles dorées avec pendentifs en résine : cœurs rosés, étoiles, fleurs vertes et bordeaux" width="1400" height="1400" loading="lazy">
+            <figcaption>Cœurs, étoiles et fleurs</figcaption>
+          </figure>
+          <figure>
+            <img src="../assets/photos/creations-emballage.jpg" alt="Boucles d'oreilles dans des pochettes holographiques violettes et bleues, avec un autocollant Tête Fière" width="1200" height="1600" loading="lazy">
+            <figcaption>Emballées avec soin</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="boutique" id="boutique">
+      <div class="wrap">
+        <h2>Où trouver Tête Fière</h2>
+        <div class="card">
+          <h3>Rose, Concept Store</h3>
+          <p class="address"><span aria-hidden="true">📍</span> Grand Place 24, Huy</p>
+          <p>Mes premières créations vous attendent chez Rose : une boutique remplie de pépites, de jolies découvertes et de créations Made in Belgium <span aria-hidden="true">🇧🇪</span></p>
+          <p>N'hésitez pas à aller y faire un petit tour&nbsp;!</p>
+          <a class="btn" href="https://www.facebook.com/roseconceptstorehuy" target="_blank" rel="noopener">Voir la boutique sur Facebook</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="wrap">
+        <h2>Un petit coucou&nbsp;?</h2>
+        <p class="intro">Une question, une envie, une idée&nbsp;? Écrivez-moi, ou venez suivre les nouveautés sur les réseaux.</p>
+        <ul class="links">
+          <li><a href="mailto:savoiapauline.creation@gmail.com">savoiapauline.creation@gmail.com</a></li>
+          <li><a href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram : @tetefiere</a></li>
+          <li><a href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook : Tête Fière</a></li>
+        </ul>
+      </div>
+    </section>
   </main>
+
+  <footer>
+    <p>Tête Fière ! Créé à la main, avec cœur <span aria-hidden="true">🤍</span></p>
+  </footer>
+
 </body>
 </html>
