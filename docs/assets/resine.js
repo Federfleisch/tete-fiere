@@ -15,9 +15,9 @@
   var SETTINGS = {
     brushRadius: 0.14,   // rayon du pinceau, en fraction de la hauteur
     brushStrength: 0.45, // part du mouvement du curseur transmise à la matière (1 = la suit entièrement)
-    relax: 0.996,        // retour à l'état initial, par image à 60 i/s (traces résorbées en ~4 s)
-    flow: 0.00012,       // intensité du courant ambiant (0 = immobile au repos)
-    flowSpeed: 0.05,     // vitesse d'évolution du courant
+    relax: 0.995,        // retour à l'état initial, par image à 60 i/s (traces résorbées en ~3 s)
+    flow: 0.00015,       // vitesse du courant ambiant (0 = immobile au repos) ; amplitude ≈ flow / (1 - relax)
+    flowSpeed: 0.065,    // vitesse d'évolution des tourbillons
     flowScale: 1.6,      // taille des tourbillons (plus grand = plus petits tourbillons)
     warmup: 360,         // pas de simulation joués avant la 1re image : la résine démarre déjà en mouvement
     simScale: 0.5,       // résolution de la simulation par rapport à l'écran
