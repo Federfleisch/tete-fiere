@@ -13,13 +13,19 @@
   'use strict';
 
   var SETTINGS = {
-    brushRadius: 0.075,  // rayon du pinceau, en fraction de la hauteur
-    brushStrength: 1.0,
-    relax: 0.9985,       // retour lent à l'état initial
+    brushRadius: 0.14,   // rayon du pinceau, en fraction de la hauteur
+    brushStrength: 0.45, // part du mouvement du curseur transmise à la matière (1 = la suit entièrement)
+    relax: 0.996,        // retour à l'état initial, par image à 60 i/s (traces résorbées en ~4 s)
+    flow: 0.00012,       // intensité du courant ambiant (0 = immobile au repos)
+    flowSpeed: 0.05,     // vitesse d'évolution du courant
+    flowScale: 1.6,      // taille des tourbillons (plus grand = plus petits tourbillons)
+    warmup: 360,         // pas de simulation joués avant la 1re image : la résine démarre déjà en mouvement
     simScale: 0.5,       // résolution de la simulation par rapport à l'écran
     maxDpr: 2,
-    idleStop: 20000      // arrêt de la boucle après 20 s sans mouvement (batterie)
+    idleStop: 20000      // sans courant ambiant : arrêt de la boucle après 20 s sans mouvement
   };
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) { SETTINGS.flow = 0; SETTINGS.warmup = 0; }
 
   var canvas = document.querySelector('canvas.resine');
   if (!canvas) return;
@@ -31,16 +37,28 @@
     'in vec2 aPos; out vec2 vUv;\n' +
     'void main(){ vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }';
 
-  // D(x) = M(x) - x. Coup de pinceau : M'(x) = M(x - s) donc D'(x) = D(x - s) - s.
+  // D(x) = M(x) - x. Déplacement s : M'(x) = M(x - s) donc D'(x) = D(x - s) - s.
+  // s = coup de pinceau + courant ambiant (rotationnel d'un bruit : il tourbillonne sans se tasser).
   var SIM = '#version 300 es\n' +
     'precision highp float;\n' +
     'in vec2 vUv; out vec4 o;\n' +
     'uniform sampler2D uDisp; uniform vec2 uMouse; uniform vec2 uVel;\n' +
     'uniform float uRadius; uniform float uAspect; uniform float uRelax; uniform float uStrength;\n' +
+    'uniform float uTime; uniform float uFlow; uniform float uFlowScale;\n' +
+    'float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }\n' +
+    'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);\n' +
+    '  return mix(mix(hash(i), hash(i + vec2(1,0)), u.x), mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), u.x), u.y); }\n' +
+    'float field(vec2 p){ float t = uTime;\n' +
+    '  return noise(p + vec2(t, -0.7 * t)) + 0.5 * noise(p * 2.1 + vec2(-0.6 * t, t) + 7.3) + 0.25 * noise(p * 4.3 + vec2(0.4 * t, 0.9 * t) + 3.1); }\n' +
+    'vec2 curl(vec2 p){ float e = 0.02;\n' +
+    '  float a = field(p + vec2(0.0, e)), b = field(p - vec2(0.0, e));\n' +
+    '  float c = field(p + vec2(e, 0.0)), d = field(p - vec2(e, 0.0));\n' +
+    '  return vec2(a - b, -(c - d)) / (2.0 * e); }\n' +
     'void main(){\n' +
     '  vec2 d = vUv - uMouse; d.x *= uAspect;\n' +
     '  float f = exp(-dot(d, d) / (uRadius * uRadius));\n' +
     '  vec2 s = uVel * f * uStrength;\n' +
+    '  if (uFlow > 0.0) { vec2 c = curl(vec2(vUv.x * uAspect, vUv.y) * uFlowScale); s += vec2(c.x / uAspect, c.y) * uFlow; }\n' +
     '  vec2 D = texture(uDisp, vUv - s).xy - s;\n' +
     '  o = vec4(D * uRelax, 0.0, 1.0);\n' +
     '}';
@@ -133,11 +151,13 @@
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     photoAspect = img.width / img.height;
     resize();
+    for (var i = 0; i < SETTINGS.warmup; i++) { flowTime += SETTINGS.flowSpeed / 60; simStep(-10, -10, 0, 0); }
     render();
     canvas.classList.add('is-ready');   // fondu d'apparition par-dessus le fond CSS identique
     window.addEventListener('pointermove', onMove, { passive: true });
     window.addEventListener('pointerdown', function (e) { last = toUv(e); wake(); }, { passive: true });
     window.addEventListener('resize', function () { if (resize()) wake(); });
+    if (SETTINGS.flow > 0) wake();
   };
   img.src = canvas.getAttribute('data-src');
 
@@ -160,6 +180,7 @@
   document.addEventListener('pointerleave', function () { last = null; });
   window.addEventListener('blur', function () { last = null; });
 
+  var flowTime = 0, relaxNow = SETTINGS.relax, flowNow = SETTINGS.flow;
   function simStep(mx, my, vx, vy) {
     gl.useProgram(simProg.p);
     gl.bindFramebuffer(gl.FRAMEBUFFER, B.fb);
@@ -170,8 +191,11 @@
     gl.uniform2f(simProg.u.uVel, vx, vy);
     gl.uniform1f(simProg.u.uRadius, SETTINGS.brushRadius);
     gl.uniform1f(simProg.u.uAspect, W / H);
-    gl.uniform1f(simProg.u.uRelax, SETTINGS.relax);
+    gl.uniform1f(simProg.u.uRelax, relaxNow);
     gl.uniform1f(simProg.u.uStrength, SETTINGS.brushStrength);
+    gl.uniform1f(simProg.u.uTime, flowTime);
+    gl.uniform1f(simProg.u.uFlow, flowNow);
+    gl.uniform1f(simProg.u.uFlowScale, SETTINGS.flowScale);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     var t = A; A = B; B = t;
   }
@@ -194,10 +218,24 @@
     if (!running) { running = true; requestAnimationFrame(frame); }
   }
 
+  var lastFrame = 0;
   function frame(now) {
     resize();
+    // Pas de temps normalisé à 60 i/s : même vitesse sur un écran 120 Hz.
+    var dt = lastFrame ? Math.min(3, (now - lastFrame) / (1000 / 60)) : 1;
+    lastFrame = now;
+    flowTime += SETTINGS.flowSpeed / 60 * dt;
     var segs = pending; pending = [];
     var stepped = false;
+    // Le courant et le relâchement s'appliquent une fois par image, pas à chaque sous-pas du pinceau.
+    var nSub = 0;
+    for (var j = 0; j < segs.length; j++) {
+      var g = segs[j];
+      nSub += Math.min(24, Math.max(1, Math.ceil(Math.hypot((g[2] - g[0]) * (W / H), g[3] - g[1]) / (SETTINGS.brushRadius / 3))));
+    }
+    nSub = Math.max(1, nSub);
+    relaxNow = Math.pow(SETTINGS.relax, dt / nSub);
+    flowNow = SETTINGS.flow * dt / nSub;
     for (var i = 0; i < segs.length; i++) {
       var s = segs[i], dx = s[2] - s[0], dy = s[3] - s[1];
       var len = Math.hypot(dx * (W / H), dy);
@@ -206,8 +244,8 @@
     }
     if (!stepped) simStep(-10, -10, 0, 0);
     render();
-    if (now - lastInput < SETTINGS.idleStop) requestAnimationFrame(frame);
-    else running = false;
+    if (SETTINGS.flow > 0 || now - lastInput < SETTINGS.idleStop) requestAnimationFrame(frame);
+    else { running = false; lastFrame = 0; }
   }
 
   window.resine = SETTINGS;
