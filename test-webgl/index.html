@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Test WebGL : résine</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #9CC8F3; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+  .ui {
+    position: fixed; left: 16px; bottom: 16px; z-index: 2;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    font: 600 14px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #110F39;
+  }
+  .ui button, .ui span {
+    padding: 10px 14px; border-radius: 999px; border: none;
+    background: rgba(255, 255, 255, .88); color: #110F39; font: inherit;
+    box-shadow: 0 6px 20px rgba(17, 15, 57, .16);
+  }
+  .ui button { cursor: pointer; }
+  .ui button[aria-pressed="true"] { background: #110F39; color: #fff; }
+  .ui button:focus-visible { outline: 3px solid #3552D9; outline-offset: 2px; }
+  .fallback {
+    position: fixed; inset: 0; display: none; place-items: center; text-align: center; padding: 24px;
+    background: #9CC8F3 url("../docs/assets/main-background.jpg") center / cover no-repeat;
+    font: 600 16px/1.5 system-ui, sans-serif; color: #110F39;
+  }
+  .fallback p { background: rgba(255, 255, 255, .9); padding: 12px 18px; border-radius: 16px; max-width: 40ch; }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Fond de résine liquide, déformable avec la souris" role="img"></canvas>
+
+<div class="ui">
+  <span>Déplace la souris pour tirer la résine</span>
+  <button type="button" id="b-proc" aria-pressed="true">Procédural</button>
+  <button type="button" id="b-photo" aria-pressed="false">Photo</button>
+  <button type="button" id="b-reset">Réinitialiser</button>
+</div>
+
+<div class="fallback" id="fallback"><p>WebGL 2 n'est pas disponible sur ce navigateur : affichage de l'image fixe.</p></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Réglages ---------- */
+  var SETTINGS = {
+    brushRadius: 0.075,   // rayon du pinceau, en fraction de la hauteur
+    brushStrength: 1.0,   // 1 = la matière suit exactement le curseur au centre du pinceau
+    relax: 0.9985,        // retour lent à l'état initial (1 = jamais)
+    simScale: 0.5,        // résolution de la simulation par rapport à l'écran
+    maxDpr: 2,
+    patternScale: 1.15    // taille des veines du motif procédural
+  };
+
+  var canvas = document.getElementById('c');
+  var gl = canvas.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false });
+  if (!gl) { return fail(); }
+  var hasFloatRT = gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float');
+  if (!hasFloatRT) { return fail(); }
+
+  function fail() {
+    canvas.style.display = 'none';
+    document.querySelector('.ui').style.display = 'none';
+    document.getElementById('fallback').style.display = 'grid';
+  }
+
+  /* ---------- Shaders ---------- */
+  var VERT = '#version 300 es\n' +
+    'in vec2 aPos; out vec2 vUv;\n' +
+    'void main(){ vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }';
+
+  // Passe de simulation : on transporte une carte de déplacement de coordonnées.
+  // D(x) = M(x) - x, avec M la coordonnée du motif lue au pixel x.
+  // Un coup de pinceau de vitesse v : M'(x) = M(x - s), s = v * falloff(x)
+  // donc D'(x) = D(x - s) - s. Seules les coordonnées sont interpolées, jamais les couleurs :
+  // les bandes s'étirent sans se mélanger.
+  var SIM = '#version 300 es\n' +
+    'precision highp float;\n' +
+    'in vec2 vUv; out vec4 o;\n' +
+    'uniform sampler2D uDisp; uniform vec2 uMouse; uniform vec2 uVel;\n' +
+    'uniform float uRadius; uniform float uAspect; uniform float uRelax; uniform float uStrength;\n' +
+    'void main(){\n' +
+    '  vec2 d = vUv - uMouse; d.x *= uAspect;\n' +
+    '  float f = exp(-dot(d, d) / (uRadius * uRadius));\n' +
+    '  vec2 s = uVel * f * uStrength;\n' +
+    '  vec2 D = texture(uDisp, vUv - s).xy - s;\n' +
+    '  o = vec4(D * uRelax, 0.0, 1.0);\n' +
+    '}';
+
+  var RENDER = '#version 300 es\n' +
+    'precision highp float;\n' +
+    'in vec2 vUv; out vec4 o;\n' +
+    'uniform sampler2D uDisp; uniform sampler2D uPhoto;\n' +
+    'uniform float uAspect; uniform float uTime; uniform float uMode; uniform float uScale; uniform float uPhotoAspect;\n' +
+
+    'float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }\n' +
+    'vec2 hash2(vec2 p){ float h = hash(p); return vec2(h, hash(p + h + 17.17)); }\n' +
+    'float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);\n' +
+    '  return mix(mix(hash(i), hash(i + vec2(1,0)), u.x), mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), u.x), u.y); }\n' +
+    'float fbm(vec2 p){ float a = 0.5, s = 0.0; mat2 r = mat2(0.8, 0.6, -0.6, 0.8);\n' +
+    '  for (int i = 0; i < 5; i++){ s += a * noise(p); p = r * p * 2.03 + 11.7; a *= 0.5; } return s; }\n' +
+
+    // Palette tirée de main-background.jpg
+    'vec3 C0 = vec3(0.659, 0.769, 0.863);\n' +   // bleu très clair  #A8C4DC
+    'vec3 C1 = vec3(0.404, 0.620, 0.859);\n' +   // bleu moyen       #679EDB
+    'vec3 C2 = vec3(0.180, 0.415, 0.840);\n' +   // bleu profond     #2E6AD6
+    'vec3 C3 = vec3(0.265, 0.300, 0.820);\n' +   // bleu violet
+    'vec3 C4 = vec3(0.231, 0.525, 0.843);\n' +   // bleu vif         #3B86D7
+    'vec3 C5 = vec3(0.812, 0.792, 0.855);\n' +   // blanc nacré      #CFCADA
+    'vec3 C6 = vec3(0.900, 0.640, 0.840);\n' +   // rose
+    'vec3 C7 = vec3(0.835, 0.690, 0.847);\n' +   // rose poudré      #D5B0D8
+    'vec3 band(vec3 a, vec3 b, float t, float x0, float x1){ return mix(a, b, smoothstep(x0, x1, t)); }\n' +
+    'vec3 palette(float t){\n' +
+    '  t = fract(t);\n' +
+    '  vec3 c = C0;\n' +
+    '  c = band(c, C1, t, 0.06, 0.16);\n' +
+    '  c = band(c, C2, t, 0.19, 0.27);\n' +
+    '  c = band(c, C3, t, 0.28, 0.36);\n' +
+    '  c = band(c, C4, t, 0.38, 0.46);\n' +
+    '  c = band(c, C5, t, 0.49, 0.56);\n' +
+    '  c = band(c, C6, t, 0.58, 0.68);\n' +
+    '  c = band(c, C7, t, 0.74, 0.84);\n' +
+    '  c = band(c, C0, t, 0.88, 0.99);\n' +
+    '  return c; }\n' +
+
+    // Motif de résine : bandes diagonales déformées par un double « domain warp »
+    'vec3 resin(vec2 p){\n' +
+    '  float ang = -0.95; mat2 R = mat2(cos(ang), sin(ang), -sin(ang), cos(ang));\n' +
+    '  vec2 q = R * p;\n' +
+    '  q.y *= 0.28;\n' +                                  // étire fortement le long du flux
+    '  vec2 w = vec2(fbm(q * 1.1 + vec2(0.0, uTime * 0.015)), fbm(q * 1.1 + vec2(5.2, 1.3)));\n' +
+    '  vec2 w2 = vec2(fbm(q * 1.7 + 2.4 * w + vec2(1.7, 9.2)), fbm(q * 1.7 + 2.4 * w + vec2(8.3, 2.8)));\n' +
+    '  float t = q.x * 0.5 + 0.6 * w2.x + 0.06 * fbm(q * vec2(5.0, 1.5) + w2 * 2.0);\n' +
+    '  vec3 col = palette(t);\n' +
+    // fines traînées claires, étirées dans le sens du flux
+    '  float vein = fract(t * 7.0 + 0.8 * fbm(q * vec2(3.0, 0.8) + w));\n' +
+    '  col = mix(col, vec3(0.97, 0.96, 1.0), 0.10 * (1.0 - smoothstep(0.0, 0.05, abs(vein - 0.5))));\n' +
+    // légère ombre de relief
+    '  col *= 0.95 + 0.08 * fbm(q * 2.0 - w2);\n' +
+    '  return col; }\n' +
+
+    // Petites bulles prises dans la résine (elles suivent aussi le pinceau)
+    'vec3 bubbles(vec2 p, vec3 col){\n' +
+    '  for (int k = 0; k < 2; k++){\n' +
+    '    float cell = k == 0 ? 0.035 : 0.11;\n' +
+    '    vec2 g = p / cell; vec2 id = floor(g); vec2 f = fract(g) - 0.5;\n' +
+    '    vec2 rnd = hash2(id + float(k) * 31.0);\n' +
+    '    float present = step(k == 0 ? 0.78 : 0.93, hash(id * 1.7 + float(k)));\n' +
+    '    float r = (k == 0 ? mix(0.06, 0.16, rnd.x) : mix(0.10, 0.28, rnd.y));\n' +
+    '    vec2 c = (rnd - 0.5) * (1.0 - 2.0 * r) * 0.9;\n' +
+    '    float d = length(f - c) / r;\n' +
+    '    float px = fwidth(d);\n' +
+    '    float disk = 1.0 - smoothstep(1.0 - px, 1.0 + px, d);\n' +
+    '    float rim = smoothstep(0.62, 0.95, d) * disk;\n' +
+    '    float spec = 1.0 - smoothstep(0.0, 0.35, length(f - c - vec2(-0.3, 0.3) * r) / r);\n' +
+    '    vec3 inside = mix(col, col * 0.88 + vec3(0.06), 0.6);\n' +
+    '    vec3 b = mix(inside, vec3(1.0), rim * 0.75 + spec * disk * 0.8);\n' +
+    '    col = mix(col, b, disk * present);\n' +
+    '  }\n' +
+    '  return col; }\n' +
+
+    'void main(){\n' +
+    '  vec2 D = texture(uDisp, vUv).xy;\n' +
+    '  vec2 m = vUv + D;\n' +                                   // coordonnée transportée
+    '  vec3 col;\n' +
+    '  if (uMode < 0.5) {\n' +
+    '    vec2 p = vec2((m.x - 0.5) * uAspect, m.y - 0.5) * uScale * 2.0;\n' +
+    '    col = bubbles(p * 0.5, resin(p));\n' +
+    '  } else {\n' +
+    // photo en « cover », centrée
+    '    vec2 uv = m - 0.5;\n' +
+    '    if (uAspect > uPhotoAspect) uv.y *= uPhotoAspect / uAspect; else uv.x *= uAspect / uPhotoAspect;\n' +
+    '    uv += 0.5;\n' +
+    '    col = texture(uPhoto, vec2(uv.x, 1.0 - uv.y)).rgb;\n' +
+    '  }\n' +
+    '  o = vec4(col, 1.0);\n' +
+    '}';
+
+  function compile(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { throw new Error(gl.getShaderInfoLog(s)); }
+    return s;
+  }
+  function program(fs) {
+    var p = gl.createProgram();
+    gl.attachShader(p, compile(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+    gl.bindAttribLocation(p, 0, 'aPos');
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { throw new Error(gl.getProgramInfoLog(p)); }
+    var u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (var i = 0; i < n; i++) { var name = gl.getActiveUniform(p, i).name; u[name] = gl.getUniformLocation(p, name); }
+    return { p: p, u: u };
+  }
+
+  var simProg, renderProg;
+  try { simProg = program(SIM); renderProg = program(RENDER); }
+  catch (e) { console.error(e); return fail(); }
+
+  // Triangle plein écran
+  var vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  var vbo = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  /* ---------- Cibles de simulation (ping-pong) ---------- */
+  function makeTarget(w, h) {
+    var t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    var fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+    gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    return { t: t, fb: fb, w: w, h: h };
+  }
+  var A, B, simW = 0, simH = 0;
+
+  /* ---------- Photo (mode de comparaison) ---------- */
+  var photoTex = gl.createTexture(), photoAspect = 16 / 9;
+  gl.bindTexture(gl.TEXTURE_2D, photoTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([156, 200, 243, 255]));
+  var img = new Image();
+  img.onload = function () {
+    gl.bindTexture(gl.TEXTURE_2D, photoTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    photoAspect = img.width / img.height;
+  };
+  img.src = '../docs/assets/main-background.jpg';
+
+  /* ---------- Taille ---------- */
+  var W = 0, H = 0;
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, SETTINGS.maxDpr);
+    var w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+    var h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    if (w === W && h === H) return;
+    W = canvas.width = w; H = canvas.height = h;
+    var sw = Math.max(2, Math.round(w * SETTINGS.simScale)), sh = Math.max(2, Math.round(h * SETTINGS.simScale));
+    if (sw !== simW || sh !== simH) {
+      // Un redimensionnement remet la matière à zéro (test, pas de conservation).
+      A = makeTarget(sw, sh); B = makeTarget(sw, sh); simW = sw; simH = sh;
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  /* ---------- Pointeur ---------- */
+  var mouse = null, last = null, pending = [];
+  function toUv(e) {
+    var r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height];
+  }
+  canvas.addEventListener('pointermove', function (e) {
+    var events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    if (!events.length) events = [e];
+    for (var i = 0; i < events.length; i++) {
+      var p = toUv(events[i]);
+      if (last) pending.push([last[0], last[1], p[0], p[1]]);
+      last = p;
+    }
+    mouse = last;
+  });
+  canvas.addEventListener('pointerleave', function () { last = null; });
+  canvas.addEventListener('pointerdown', function (e) { last = toUv(e); });
+
+  /* ---------- Boutons ---------- */
+  var mode = 0;
+  var bProc = document.getElementById('b-proc'), bPhoto = document.getElementById('b-photo');
+  function setMode(m) {
+    mode = m;
+    bProc.setAttribute('aria-pressed', String(m === 0));
+    bPhoto.setAttribute('aria-pressed', String(m === 1));
+  }
+  bProc.addEventListener('click', function () { setMode(0); });
+  bPhoto.addEventListener('click', function () { setMode(1); });
+  document.getElementById('b-reset').addEventListener('click', function () {
+    [A, B].forEach(function (t) { gl.bindFramebuffer(gl.FRAMEBUFFER, t.fb); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT); });
+  });
+  if (/[?&]mode=photo\b/.test(location.search)) setMode(1);
+
+  /* ---------- Boucle ---------- */
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t0 = performance.now();
+
+  function simStep(mx, my, vx, vy) {
+    gl.useProgram(simProg.p);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, B.fb);
+    gl.viewport(0, 0, simW, simH);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.t);
+    gl.uniform1i(simProg.u.uDisp, 0);
+    gl.uniform2f(simProg.u.uMouse, mx, my);
+    gl.uniform2f(simProg.u.uVel, vx, vy);
+    gl.uniform1f(simProg.u.uRadius, SETTINGS.brushRadius);
+    gl.uniform1f(simProg.u.uAspect, W / H);
+    gl.uniform1f(simProg.u.uRelax, SETTINGS.relax);
+    gl.uniform1f(simProg.u.uStrength, SETTINGS.brushStrength);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    var tmp = A; A = B; B = tmp;
+  }
+
+  function frame(now) {
+    resize();
+
+    // Découpe chaque mouvement en petits pas (≤ 1/3 du rayon) pour un trait continu.
+    var segs = pending; pending = [];
+    var stepped = false;
+    for (var i = 0; i < segs.length; i++) {
+      var s = segs[i];
+      var dx = s[2] - s[0], dy = s[3] - s[1];
+      var len = Math.hypot(dx * (W / H), dy);
+      var n = Math.min(24, Math.max(1, Math.ceil(len / (SETTINGS.brushRadius / 3))));
+      for (var k = 1; k <= n; k++) {
+        simStep(s[0] + dx * k / n, s[1] + dy * k / n, dx / n, dy / n);
+        stepped = true;
+      }
+    }
+    if (!stepped) simStep(-10, -10, 0, 0); // relâchement seul
+
+    gl.useProgram(renderProg.p);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, W, H);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.t);
+    gl.uniform1i(renderProg.u.uDisp, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, photoTex);
+    gl.uniform1i(renderProg.u.uPhoto, 1);
+    gl.uniform1f(renderProg.u.uAspect, W / H);
+    gl.uniform1f(renderProg.u.uPhotoAspect, photoAspect);
+    gl.uniform1f(renderProg.u.uTime, reduce ? 0 : (now - t0) / 1000);
+    gl.uniform1f(renderProg.u.uMode, mode);
+    gl.uniform1f(renderProg.u.uScale, SETTINGS.patternScale);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // Accès console pour régler à chaud : resine.brushRadius = 0.1, etc.
+  window.resine = SETTINGS;
+})();
+</script>
+</body>
+</html>
