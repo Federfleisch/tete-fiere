@@ -155,19 +155,22 @@
     render();
     canvas.classList.add('is-ready');   // fondu d'apparition par-dessus le fond CSS identique
     window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerdown', function (e) { last = toUv(e); wake(); }, { passive: true });
+    window.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') return; last = toUv(e); wake(); }, { passive: true });
     window.addEventListener('resize', function () { if (resize()) wake(); });
     if (SETTINGS.flow > 0) wake();
   };
   img.src = canvas.getAttribute('data-src');
 
-  /* Pointeur (écouté sur la fenêtre : le contenu de la page reste cliquable par-dessus) */
+  /* Pointeur (écouté sur la fenêtre : le contenu de la page reste cliquable par-dessus).
+     Souris uniquement : au doigt et au stylet, la page défile normalement et la résine
+     ondule seule grâce au courant ambiant. */
   var last = null, pending = [], lastInput = 0, running = false;
   function toUv(e) {
     var r = canvas.getBoundingClientRect();
     return [(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height];
   }
   function onMove(e) {
+    if (e.pointerType !== 'mouse') return;
     var events = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
     if (!events || !events.length) events = [e];
     for (var i = 0; i < events.length; i++) {

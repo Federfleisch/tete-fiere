@@ -28,8 +28,6 @@
       opacity: 0; transition: opacity .6s ease;
     }
     canvas.resine.is-ready { opacity: 1; }
-    /* Garde le glisser au doigt pour la résine, sans bloquer le zoom */
-    html, body { touch-action: pinch-zoom; }
     main { position: relative; z-index: 1; display: grid; gap: 1.5rem; justify-items: center; }
     /* 50 % de la largeur de l'image de fond affichée (cover), comme dans la maquette */
     .logo { width: min(86vw, calc(max(100vw, 177.78vh) * 0.5)); height: auto; }
