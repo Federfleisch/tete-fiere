@@ -21,7 +21,16 @@
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       text-align: center;
     }
-    main { display: grid; gap: 1.5rem; justify-items: center; }
+    /* Fond de résine en WebGL : se superpose au fond CSS identique une fois prêt */
+    canvas.resine {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      display: block; z-index: 0; pointer-events: none;
+      opacity: 0; transition: opacity .6s ease;
+    }
+    canvas.resine.is-ready { opacity: 1; }
+    /* Garde le glisser au doigt pour la résine, sans bloquer le zoom */
+    html, body { touch-action: pinch-zoom; }
+    main { position: relative; z-index: 1; display: grid; gap: 1.5rem; justify-items: center; }
     /* 50 % de la largeur de l'image de fond affichée (cover), comme dans la maquette */
     .logo { width: min(86vw, calc(max(100vw, 177.78vh) * 0.5)); height: auto; }
     .soon {
@@ -35,11 +44,13 @@
   </style>
 </head>
 <body>
+  <canvas class="resine" data-src="assets/main-background.jpg" aria-hidden="true"></canvas>
   <main>
     <h1 class="logo-wrap" style="margin:0">
       <img class="logo" src="assets/logo-outlined.svg" alt="Tête Fière !" width="958" height="503">
     </h1>
     <p class="soon">Notre site arrive bientôt.</p>
   </main>
+  <script src="assets/resine.js" defer></script>
 </body>
 </html>
