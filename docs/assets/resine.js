@@ -24,7 +24,14 @@
     maxDpr: 2,
     idleStop: 20000      // sans courant ambiant : arrêt de la boucle après 20 s sans mouvement
   };
-  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Mobile (écran tactile sans survol) : courant environ 30 % plus rapide, même amplitude
+  // (flow et 1 - relax augmentés dans la même proportion).
+  var MOBILE = { relax: 0.9935, flow: 0.000195, flowSpeed: 0.085 };
+  var mq = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
+  if (mq('(hover: none) and (pointer: coarse)')) {
+    for (var key in MOBILE) SETTINGS[key] = MOBILE[key];
+  }
+  var reduceMotion = mq('(prefers-reduced-motion: reduce)');
   if (reduceMotion) { SETTINGS.flow = 0; SETTINGS.warmup = 0; }
 
   var canvas = document.querySelector('canvas.resine');
