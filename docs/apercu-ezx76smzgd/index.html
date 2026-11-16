@@ -67,9 +67,16 @@
   .topbar .code{background:var(--pink-200);color:var(--navy);font-weight:600;font-size:13px;letter-spacing:.52px;padding:.5px 10px;border-radius:999px}
 
   /* Héro */
-  .hero{position:relative;height:clamp(420px,calc(100svh - 44px),844px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:#9CC8F3 url('../assets/v2/hero.jpg') center/cover no-repeat}
-  .hero h1{position:relative;z-index:1;width:min(624px,80vw);margin:0;will-change:transform}
+  /* Bandeau + héro + bande défilante = exactement la hauteur visible de l'écran (100svh : barres du navigateur affichées).
+     Les hauteurs réelles du bandeau et de la bande sont mesurées en JS ; valeurs de repli en CSS. */
+  :root{--topbar-h:42px;--slider-h:136px}
+  @media (max-width:900px){:root{--slider-h:93px}}
+  @media (max-width:600px){:root{--topbar-h:90px;--slider-h:73px}}
+  .hero{position:relative;height:calc(100vh - var(--topbar-h) - var(--slider-h));height:calc(100svh - var(--topbar-h) - var(--slider-h));min-height:160px;container-type:size;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#9CC8F3 url('../assets/v2/hero.jpg') center/cover no-repeat}
+  .hero h1{position:relative;z-index:1;width:min(624px,80vw);width:min(624px,80vw,130cqh);margin:0;will-change:transform}
   .hero h1 img{width:100%;height:auto}
+  /* Écran bas (téléphone en paysage) : le logo se place au-dessus de la pilule de navigation */
+  @media (min-width:601px) and (max-height:560px){.hero{padding-bottom:85px}.hero h1{width:min(624px,80vw,calc((100cqh - 20px) * 1.9))}}
   /* Fond de résine WebGL (même script que la page d'attente) : se superpose au fond CSS identique une fois prêt */
   .hero canvas.resine{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s ease}
   .hero canvas.resine.is-ready{opacity:1}
@@ -85,7 +92,7 @@
 
   /* Bandeau défilant */
   .slider{overflow:hidden;background:linear-gradient(90deg,#171547,#271547);padding:clamp(22px,2.6vw,42px) 0}
-  .slider-track{display:flex;width:max-content;gap:32px;align-items:center;font-family:var(--f-display);font-weight:500;font-size:clamp(24px,3vw,44px);line-height:1.2;color:#fff;white-space:nowrap}
+  .slider-track{--gap:.5em;display:flex;width:max-content;gap:var(--gap);padding-right:var(--gap);align-items:center;font-family:var(--f-display);font-weight:500;font-size:clamp(24px,3vw,44px);line-height:1.2;color:#fff;white-space:nowrap}
   .slider-track .dot{width:.34em;height:.34em;border-radius:50%;background:var(--pink-200);flex:none}
   @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @media (prefers-reduced-motion:no-preference){.slider-track{animation:marquee 34s linear infinite}}
@@ -189,7 +196,7 @@
   .pauline .photo > img{width:100%;max-width:496px;height:auto}
   .stamp{position:absolute;right:-32px;top:-27px;width:156px;height:156px;transform:rotate(11.01deg);filter:drop-shadow(0 10px 18px rgba(17,15,57,.22))}
   .stamp img{position:absolute;inset:0;width:100%;height:100%}
-  .stamp .disc{inset:-3.63%;width:107.26%;height:107.26%}
+  .stamp .disc{inset:-3.63%;width:107.26%;height:107.26%;max-width:none}   /* sans max-width:none, le disque est écrasé en ovale */
   @media (max-width:1320px){.stamp{right:0}}   /* marge latérale trop étroite pour le laisser déborder de la photo */
   /* L'anneau tourne dans un cercle qui le coupe : sans cela, son carré en rotation élargit la page */
   .stamp .ring-clip{position:absolute;inset:0;overflow:hidden;border-radius:50%}
@@ -531,8 +538,42 @@
   window.addEventListener('resize', updateNav);
   updateNav();
 
-  /* Bulles : dérive lente et continue + parallaxe au défilement (les grosses bulles, plus proches, bougent plus) */
   var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Rafraîchissement : toujours repartir du haut de la page (pas de retour à la dernière ancre) */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  function toTop() {   // saut instantané, malgré scroll-behavior:smooth
+    var h = document.documentElement; h.style.scrollBehavior = 'auto';
+    window.scrollTo(0, 0); h.style.scrollBehavior = '';
+  }
+  toTop();
+  window.addEventListener('load', toTop);
+
+  /* Liens internes : défilement vers la section sans écrire l'ancre dans l'adresse */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    var id = a.getAttribute('href').slice(1), target = id && document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  });
+
+  /* Hauteur du premier écran : mesure du bandeau d'annonce et de la bande défilante */
+  var topbarEl = document.querySelector('.topbar'), sliderEl = document.querySelector('.slider');
+  function measureFold() {
+    document.documentElement.style.setProperty('--topbar-h', topbarEl.getBoundingClientRect().height + 'px');   // hauteurs non arrondies
+    document.documentElement.style.setProperty('--slider-h', sliderEl.getBoundingClientRect().height + 'px');
+  }
+  measureFold();
+  if ('ResizeObserver' in window) { var ro = new ResizeObserver(measureFold); ro.observe(topbarEl); ro.observe(sliderEl); }
+  else window.addEventListener('resize', measureFold);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureFold);
+
+  /* Bulles : dérive lente et continue + parallaxe au défilement (les grosses bulles, plus proches, bougent plus) */
   var bubbleBox = document.querySelector('.bubbles'), heroLogo = document.querySelector('.hero h1'), hero = document.querySelector('.hero');
   if (!still && bubbleBox) {
     var bubbles = [].map.call(bubbleBox.querySelectorAll('.bubble'), function (el, i) {
