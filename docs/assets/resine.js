@@ -37,6 +37,10 @@
 
   var canvas = document.querySelector('canvas.resine');
   if (!canvas) return;
+  // data-intensite (facultatif, 1 par défaut) : < 1 calme le courant ambiant (amplitude et vitesse).
+  // Héro de l'aperçu : 0.8 (demande de Denis, 16 novembre 2026). Page d'attente : inchangée.
+  var calme = parseFloat(canvas.getAttribute('data-intensite'));
+  if (calme > 0 && calme !== 1) { SETTINGS.flow *= calme; SETTINGS.flowSpeed *= Math.sqrt(calme); }
   var gl = canvas.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false });
   if (!gl) return;
   if (!gl.getExtension('EXT_color_buffer_float') && !gl.getExtension('EXT_color_buffer_half_float')) return;
