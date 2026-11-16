@@ -68,8 +68,11 @@
 
   /* Héro */
   .hero{position:relative;height:clamp(420px,calc(100svh - 44px),844px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:#9CC8F3 url('../assets/v2/hero.jpg') center/cover no-repeat}
-  .hero h1{position:relative;width:min(624px,80vw);margin:0}
+  .hero h1{position:relative;z-index:1;width:min(624px,80vw);margin:0;will-change:transform}
   .hero h1 img{width:100%;height:auto}
+  /* Fond de résine WebGL (même script que la page d'attente) : se superpose au fond CSS identique une fois prêt */
+  .hero canvas.resine{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s ease}
+  .hero canvas.resine.is-ready{opacity:1}
 
   /* Navigation : posée en bas du héro, collée en haut au défilement */
   .nav-sticky{position:sticky;top:101px;height:0;z-index:60}
@@ -88,10 +91,17 @@
   @media (prefers-reduced-motion:no-preference){.slider-track{animation:marquee 34s linear infinite}}
 
   /* Bulles */
-  .bubbles{position:relative;overflow-x:clip}
+  .bubbles{position:relative}
+  /* Calque des bulles : déborde de 240 px en haut et en bas pour la parallaxe, coupé sur les côtés */
+  .bubble-layer{position:absolute;inset:-240px 0;overflow:hidden;pointer-events:none}
   .bubble{position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 32% 28%,#fff 0,rgba(255,255,255,.6) 13%,rgba(156,200,243,.42) 55%,rgba(247,169,223,.55) 100%);box-shadow:inset -6px -8px 18px rgba(53,82,217,.16)}
-  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-  @media (prefers-reduced-motion:no-preference){.bob{animation:bob 7s ease-in-out infinite}.bob2{animation:bob 9s ease-in-out -3s infinite}}
+  .bubble{will-change:transform}
+
+  /* Objets flottants : propriété translate, indépendante des transform déjà posés (rotation du tampon, etc.) */
+  @keyframes float{0%,100%{translate:0 0}50%{translate:0 var(--float,-10px)}}
+  @media (prefers-reduced-motion:no-preference){
+    .float{animation:float var(--dur,7s) ease-in-out var(--delay,0s) infinite}
+  }
 
   /* Bloc 1 : intro et valeurs */
   .bloc1{position:relative;padding:120px 0 80px;display:flex;flex-direction:column;align-items:center;gap:80px}
@@ -180,6 +190,9 @@
   .stamp{position:absolute;right:-32px;top:-27px;width:156px;height:156px;transform:rotate(11.01deg);filter:drop-shadow(0 10px 18px rgba(17,15,57,.22))}
   .stamp img{position:absolute;inset:0;width:100%;height:100%}
   .stamp .disc{inset:-3.63%;width:107.26%;height:107.26%}
+  @media (max-width:1320px){.stamp{right:0}}   /* marge latérale trop étroite pour le laisser déborder de la photo */
+  /* L'anneau tourne dans un cercle qui le coupe : sans cela, son carré en rotation élargit la page */
+  .stamp .ring-clip{position:absolute;inset:0;overflow:hidden;border-radius:50%}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion:no-preference){.stamp .ring{animation:spin 22s linear infinite}}
 
@@ -237,7 +250,7 @@
     .pauline{flex-direction:column;align-items:center;padding-top:120px;margin-bottom:-90px;gap:40px}
     .pauline .text{padding-right:0}
     .pauline .photo{width:min(500px,100%)}
-    .stamp{width:120px;height:120px;right:0;top:-20px}
+    .stamp{width:120px;height:120px;right:14px;top:-20px}
     .quote{padding:110px 16px 80px}
   }
   @media (max-width:600px){
@@ -246,9 +259,12 @@
     .bloc1{padding:72px 0 64px;gap:56px}
     .bloc2{padding:24px 0 80px;gap:40px}
     .shop{padding:72px 0 80px}
-    .carousel-nav{display:none}
+    .carousel-nav{position:static;order:3;justify-content:center;margin-top:24px}
+    .shop{display:flex;flex-direction:column}
     .shop .fade{display:none}
-    .carousel{margin-top:24px}
+    /* Carte active centrée, un bout de la précédente et de la suivante visibles (maquette mobile) */
+    .carousel{margin-top:24px;--start:calc((100% - 276px) / 2);scroll-padding-inline:0}
+    .product{scroll-snap-align:center}
     .contact .name{font-size:24px;line-height:28px}
     .contact .row{flex-wrap:wrap}
     footer .inner{flex-direction:column;align-items:center}
@@ -278,7 +294,8 @@
 </div>
 
 <header class="hero" id="top">
-  <h1><img src="../assets/v2/logo-hero.svg" alt="Tête Fière !" width="624" height="328"></h1>
+  <canvas class="resine" data-src="../assets/v2/hero.jpg" aria-hidden="true"></canvas>
+  <h1><img class="float" style="--dur:8s;--float:-12px" src="../assets/v2/logo-hero.svg" alt="Tête Fière !" width="624" height="328"></h1>
 </header>
 
 <div class="nav-sticky">
@@ -302,12 +319,14 @@
 <main>
 
   <div class="bubbles">
-    <span class="bubble bob" aria-hidden="true" style="width:clamp(56px,6.6vw,110px);height:clamp(56px,6.6vw,110px);left:5.6%;top:197px;opacity:.4"></span>
-    <span class="bubble bob2" aria-hidden="true" style="width:56px;height:56px;left:11.4%;top:469px"></span>
-    <span class="bubble bob2" aria-hidden="true" style="width:clamp(44px,4.6vw,76px);height:clamp(44px,4.6vw,76px);left:73.7%;top:56px"></span>
-    <span class="bubble bob" aria-hidden="true" style="width:clamp(90px,10.2vw,170px);height:clamp(90px,10.2vw,170px);left:83.8%;top:566px"></span>
-    <span class="bubble bob" aria-hidden="true" style="width:56px;height:56px;left:5.9%;top:759px;opacity:.3"></span>
-    <span class="bubble bob2" aria-hidden="true" style="width:40px;height:40px;left:98.9%;top:596px;opacity:.2"></span>
+    <div class="bubble-layer" aria-hidden="true">
+      <span class="bubble" style="width:clamp(56px,6.6vw,110px);height:clamp(56px,6.6vw,110px);left:5.6%;top:437px;opacity:.4"></span>
+      <span class="bubble" style="width:56px;height:56px;left:11.4%;top:709px"></span>
+      <span class="bubble" style="width:clamp(44px,4.6vw,76px);height:clamp(44px,4.6vw,76px);left:73.7%;top:296px"></span>
+      <span class="bubble" style="width:clamp(90px,10.2vw,170px);height:clamp(90px,10.2vw,170px);left:83.8%;top:806px"></span>
+      <span class="bubble" style="width:56px;height:56px;left:5.9%;top:999px;opacity:.3"></span>
+      <span class="bubble" style="width:40px;height:40px;left:98.9%;top:836px;opacity:.2"></span>
+    </div>
 
     <section class="bloc1 wrap">
       <div class="intro rv">
@@ -320,17 +339,17 @@
       </div>
       <div class="values">
         <div class="value rv" style="background:var(--pink-100)">
-          <span class="icon"><img src="../assets/v2/icone-fait-main.svg" alt="" width="28" height="28"></span>
+          <span class="icon float" style="--dur:6s;--float:-8px"><img src="../assets/v2/icone-fait-main.svg" alt="" width="28" height="28"></span>
           <h3>Fait main</h3>
           <p style="color:var(--pink-600)">Chaque pièce est pensée, assemblée et finie à la main.</p>
         </div>
         <div class="value rv" style="background:var(--blue-100)">
-          <span class="icon"><img src="../assets/v2/icone-piece-unique.svg" alt="" width="28" height="28"></span>
+          <span class="icon float" style="--dur:6.8s;--delay:-2.2s;--float:-8px"><img src="../assets/v2/icone-piece-unique.svg" alt="" width="28" height="28"></span>
           <h3>Pièces uniques</h3>
           <p style="color:var(--navy)">La résine ne se répète pas : votre modèle n'existe qu'une fois.</p>
         </div>
         <div class="value rv" style="background:var(--purple-100)">
-          <span class="icon"><img src="../assets/v2/icone-sur-mesure.svg" alt="" width="28" height="28"></span>
+          <span class="icon float" style="--dur:7.4s;--delay:-4.1s;--float:-8px"><img src="../assets/v2/icone-sur-mesure.svg" alt="" width="28" height="28"></span>
           <h3>Sur mesure</h3>
           <p style="color:var(--purple-600)">Une couleur, une forme, une envie ? On la crée pour vous.</p>
         </div>
@@ -417,7 +436,7 @@
     <h2 id="where-title" class="rv">Mes bijoux, en vrai !</h2>
     <p class="lead rv">Envie de voir les reflets de la résine avant de craquer ? Les créations Tête Fière sont disponibles dans une seule boutique. <strong>D'autres adresses arrivent bientôt.</strong></p>
     <div class="photos">
-      <div class="photos-frame">
+      <div class="photos-frame float" style="--dur:10s;--float:-6px">
         <div class="photos-inner">
           <img src="../assets/v2/boucle-gros-plan.jpg" alt="Une boucle d'oreille en résine pailletée bleue tenue entre deux doigts" width="1024" height="1024" loading="lazy">
           <img src="../assets/v2/vitrine-rose.jpg" alt="La vitrine de Rose, Concept Store à Huy" width="768" height="1024" loading="lazy">
@@ -450,10 +469,10 @@
       </div>
     </div>
     <div class="photo rv">
-      <img src="../assets/v2/pauline.webp" alt="Pauline, créatrice de Tête Fière, souriante" width="992" height="890" loading="lazy">
-      <div class="stamp" aria-hidden="true">
+      <img class="float" style="--dur:9s;--delay:-3s;--float:-8px" src="../assets/v2/pauline.webp" alt="Pauline, créatrice de Tête Fière, souriante" width="992" height="890" loading="lazy">
+      <div class="stamp float" style="--dur:6.5s;--delay:-1.5s;--float:-12px" aria-hidden="true">
         <img class="disc" src="../assets/v2/tampon.svg" alt="" width="167" height="167">
-        <img class="ring" src="../assets/v2/tampon-texte.svg" alt="" width="156" height="156">
+        <span class="ring-clip"><img class="ring" src="../assets/v2/tampon-texte.svg" alt="" width="156" height="156"></span>
         <img src="../assets/v2/tampon-coeur.svg" alt="" width="156" height="156">
       </div>
     </div>
@@ -512,6 +531,44 @@
   window.addEventListener('resize', updateNav);
   updateNav();
 
+  /* Bulles : dérive lente et continue + parallaxe au défilement (les grosses bulles, plus proches, bougent plus) */
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bubbleBox = document.querySelector('.bubbles'), heroLogo = document.querySelector('.hero h1'), hero = document.querySelector('.hero');
+  if (!still && bubbleBox) {
+    var bubbles = [].map.call(bubbleBox.querySelectorAll('.bubble'), function (el, i) {
+      var size = el.offsetWidth || 60;
+      return {
+        el: el,
+        depth: 0.08 + Math.min(size, 170) / 170 * 0.22,   // 0,08 à 0,30
+        ax: 10 + (i * 7) % 14, ay: 12 + (i * 5) % 12,      // amplitude de la dérive (px)
+        px: 17000 + i * 3100, py: 13000 + i * 2300,        // périodes (ms) : lent
+        ph: i * 1.7
+      };
+    });
+    var boxVisible = true, heroVisible = true;
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { boxVisible = e[0].isIntersecting; }, { rootMargin: '200px 0px' }).observe(bubbleBox);
+      new IntersectionObserver(function (e) { heroVisible = e[0].isIntersecting; }).observe(hero);
+    }
+    (function tick(now) {
+      var vh = window.innerHeight;
+      if (boxVisible) {
+        var top = bubbleBox.querySelector('.bubble-layer').getBoundingClientRect().top;
+        bubbles.forEach(function (b) {
+          var par = (top + b.el.offsetTop + b.el.offsetHeight / 2 - vh / 2) * b.depth;   // nul quand la bulle est au centre de l'écran
+          var x = Math.sin(now / b.px * 2 * Math.PI + b.ph) * b.ax;
+          var y = Math.cos(now / b.py * 2 * Math.PI + b.ph) * b.ay + par;
+          b.el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+        });
+      }
+      if (heroVisible && heroLogo) {
+        var hy = Math.min(Math.max(-hero.getBoundingClientRect().top, 0), vh) * 0.25;   // le logo descend moins vite que la page
+        heroLogo.style.transform = 'translate3d(0,' + hy.toFixed(1) + 'px,0)';
+      }
+      requestAnimationFrame(tick);
+    })(performance.now());
+  }
+
   /* Menu mobile */
   var bBtn = document.querySelector('.burger-btn'), bMenu = document.getElementById('burger-menu');
   function setMenu(open) {
@@ -553,5 +610,6 @@
   setInterval(update, 60000);
 })();
 </script>
+<script src="../assets/resine.js" defer></script>
 </body>
 </html>

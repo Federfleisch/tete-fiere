@@ -6,6 +6,7 @@
  * jamais les couleurs : la matière s'étire comme sous un pinceau, sans mélange de teintes.
  *
  * Utilisation : <canvas class="resine" data-src="assets/main-background.jpg"></canvas>
+ * (page d'attente, plein écran, et héro de l'aperçu, avec hero.jpg).
  * La photo est cadrée comme un fond CSS « center / cover ». Sans WebGL 2, le canvas reste
  * caché et le fond CSS de la page s'affiche.
  */
@@ -189,6 +190,17 @@
   }
   document.addEventListener('pointerleave', function () { last = null; });
   window.addEventListener('blur', function () { last = null; });
+  // La page défile sous le curseur immobile : on repart d'un point neuf pour éviter un trait parasite.
+  window.addEventListener('scroll', function () { last = null; }, { passive: true });
+
+  // Canvas hors de l'écran (fond du héro sur le site) : la boucle s'arrête et reprend au retour.
+  var visible = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      visible = entries[0].isIntersecting;
+      if (visible && SETTINGS.flow > 0) wake();
+    }).observe(canvas);
+  }
 
   var flowTime = 0, relaxNow = SETTINGS.relax, flowNow = SETTINGS.flow;
   function simStep(mx, my, vx, vy) {
@@ -230,6 +242,7 @@
 
   var lastFrame = 0;
   function frame(now) {
+    if (!visible) { running = false; lastFrame = 0; pending = []; return; }
     resize();
     // Pas de temps normalisé à 60 i/s : même vitesse sur un écran 120 Hz.
     var dt = lastFrame ? Math.min(3, (now - lastFrame) / (1000 / 60)) : 1;
