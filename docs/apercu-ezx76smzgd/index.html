@@ -204,6 +204,25 @@
   .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--navy);color:#fff;font-family:var(--f-display);font-weight:500;font-size:16px;padding:14px 22px;border-radius:999px;box-shadow:0 10px 28px rgba(17,15,57,.3);transition:opacity .25s ease,transform .25s ease;z-index:90}
   .toast.show{opacity:1;transform:translate(-50%,0)}
 
+  /* Menu mobile (hamburger) : affiché sous 600 px */
+  .burger-sticky{display:none;position:sticky;top:0;height:0;z-index:70}
+  .burger{position:absolute;right:16px;top:16px;padding:10px;border-radius:999px;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(17,15,57,.16)}
+  .burger-btn{position:relative;display:block;width:40px;height:40px;padding:0;border:none;border-radius:999px;background:#fff;cursor:pointer}
+  .burger-btn span{position:absolute;left:11px;width:18px;height:3px;border-radius:1.5px;background:var(--navy);transition:transform .25s ease,opacity .2s ease}
+  .burger-btn span:nth-child(1){top:12.5px}
+  .burger-btn span:nth-child(2){top:18.5px}
+  .burger-btn span:nth-child(3){top:24.5px}
+  .burger-btn[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+  .burger-btn[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .burger-btn[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+  .burger-menu{position:absolute;right:0;top:calc(100% + 12px);width:min(260px,calc(100vw - 32px));display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:32px;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(17,15,57,.16)}
+  .burger-menu[hidden]{display:none}
+  .burger-menu a,.burger-menu .cart{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px;border-radius:999px;background:#fff;font-family:var(--f-display);font-weight:500;font-size:18px;line-height:1;color:var(--navy)}
+  .burger-menu a:hover{background:var(--pink-100)}
+  .burger-menu .cart{color:rgba(17,15,57,.5)}
+  .burger-menu .soon{background:var(--pink-100);color:#B2639A;font-family:var(--f-body);font-weight:700;font-size:11px;line-height:1;padding:7px 10px;border-radius:999px}
+  @media (prefers-reduced-motion:reduce){.burger-btn span{transition:none}}
+
   /* Apparition au défilement */
   @media (prefers-reduced-motion:no-preference){
     .js .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
@@ -222,6 +241,8 @@
     .quote{padding:110px 16px 80px}
   }
   @media (max-width:600px){
+    .burger-sticky{display:block}
+    .nav-sticky{display:none}
     .bloc1{padding:72px 0 64px;gap:56px}
     .bloc2{padding:24px 0 80px;gap:40px}
     .shop{padding:72px 0 80px}
@@ -243,6 +264,17 @@
   <span>Pièces uniques faites main</span><span class="dot" aria-hidden="true"></span>
   <span>Code promo de lancement : <span class="code">CODE</span></span><span class="dot" aria-hidden="true"></span>
   <span>Envoi soigné en Belgique &amp; en France</span>
+</div>
+
+<div class="burger-sticky">
+  <nav class="burger" aria-label="Menu">
+    <button class="burger-btn" type="button" aria-expanded="false" aria-controls="burger-menu" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+    <div class="burger-menu" id="burger-menu" hidden>
+      <a href="#boutique">Bijoux</a>
+      <a href="#ou-me-trouver">Où me trouver</a>
+      <span class="cart">Mon panier <span class="soon">Bientôt</span></span>
+    </div>
+  </nav>
 </div>
 
 <header class="hero" id="top">
@@ -479,6 +511,18 @@
   track.addEventListener('scroll', updateNav, { passive: true });
   window.addEventListener('resize', updateNav);
   updateNav();
+
+  /* Menu mobile */
+  var bBtn = document.querySelector('.burger-btn'), bMenu = document.getElementById('burger-menu');
+  function setMenu(open) {
+    bBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    bBtn.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+    bMenu.hidden = !open;
+  }
+  bBtn.addEventListener('click', function () { setMenu(bMenu.hidden); });
+  bMenu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !bMenu.hidden) { setMenu(false); bBtn.focus(); } });
+  document.addEventListener('click', function (e) { if (!bMenu.hidden && !e.target.closest('.burger')) setMenu(false); });
 
   /* Panier : bientôt disponible */
   var toast = document.getElementById('toast'), t;
