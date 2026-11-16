@@ -20,7 +20,8 @@
   :root{
     --navy:#110F39; --ink:#3F3E63; --paper:#FBF9FF;
     --pink-100:#FDE3F4; --pink-200:#F7A9DF; --pink-600:#390F2C;
-    --blue-100:#E3F0FD; --purple-100:#F1ECFF; --purple-200:#CDBFF7; --purple-600:#190F39;
+    --blue-100:#E3F0FD; --blue-200:#A9CBF7; --blue-600:#110F39; --purple-100:#F1ECFF; --purple-200:#CDBFF7; --purple-600:#190F39;
+    --gradient-1:linear-gradient(143deg,#F7A9DF 0%,#CDBFF7 50%,#9CC8F3 100%);
     --grey-200:#EEEEEE; --grey-600:#0B0C0C;
     --f-display:'Fredoka',ui-rounded,system-ui,sans-serif;
     --f-body:'Nunito',system-ui,sans-serif;
@@ -39,18 +40,25 @@
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .wrap{width:min(1200px,100% - 2 * var(--gutter));margin-inline:auto}
 
-  /* Boutons */
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:21px 40px;border-radius:999px;border:2px solid var(--navy);font-family:var(--f-display);font-weight:500;font-size:18px;line-height:17px;letter-spacing:-.18px;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .25s ease,color .25s ease}
-  .btn:hover{transform:translateY(-3px)}
+  /* Boutons (styleguide) : Medium H49 padding 16/32 texte 16 ; Large H59 padding 21/40 texte 18 ; gap 8 ; rayon 999.
+     Survol Primary : dégradé 1, texte et flèche bleu nuit. Survol Secondary : contour rose, texte et flèche bleu nuit. */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 30px;border-radius:999px;border:2px solid transparent;font-family:var(--f-display);font-weight:500;font-size:16px;line-height:17px;letter-spacing:-.16px;cursor:pointer;white-space:nowrap;transition:background .25s ease,color .25s ease,border-color .25s ease}
+  .btn-lg{padding:19px 38px;font-size:18px;letter-spacing:-.18px}
   .btn-navy{background:var(--navy);color:#fff}
-  .btn-ghost{background:transparent;color:var(--navy)}
-  .btn-ghost:hover{background:#fff}
-  .btn img{flex:none}
+  .btn-navy:hover{background:var(--gradient-1);color:var(--navy)}
+  .btn-ghost{background:transparent;border-color:var(--navy);color:var(--navy)}
+  .btn-ghost:hover{border-color:var(--pink-200)}
+  .btn img{flex:none;width:12px;height:10px}
+  .btn .arr-navy{display:none}
+  .btn-navy:hover .arr-white{display:none}
+  .btn-navy:hover .arr-navy{display:block}
 
   /* Pastilles */
   .pill{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:999px;font-family:var(--f-display);font-weight:600;font-size:15px;line-height:1;letter-spacing:.9px;text-transform:uppercase;color:var(--grey-600);background:#fff}
   .pill-grey{background:var(--grey-200)}
   .pill-purple{background:var(--purple-200);color:var(--purple-600)}
+  .pill-pink{background:var(--pink-200);color:var(--pink-600)}
+  .pill-blue{background:var(--blue-200);color:var(--blue-600)}
 
   /* Bandeau d'annonce */
   .topbar{background:var(--navy);color:#fff;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;padding:12px 16px;font-family:var(--f-display);font-size:14px;line-height:18.2px;letter-spacing:.13px;text-align:center}
@@ -109,39 +117,39 @@
   .card .cta-zone span{display:block;font-size:15px;color:var(--ink)}
   .card .cta-zone img{width:46px;height:46px;flex:none}
 
-  /* Boutique */
-  .shop{border-radius:clamp(36px,5vw,72px);padding:110px clamp(16px,4vw,56px);background:linear-gradient(157deg,#F1ECFF 4.4%,#ECF1FF 85%);display:flex;flex-direction:column;align-items:center;gap:56px}
-  .shop-head{display:flex;flex-direction:column;align-items:center;gap:13px}
-  .shop-grid-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
-  .shop-grid{position:relative;width:100%;max-width:1200px;display:grid;grid-template-columns:repeat(auto-fill,276px);justify-content:center;gap:32px;max-height:1224px;overflow:hidden;transition:max-height .5s ease}
-  .shop-grid.open{max-height:none}
-  .shop-grid .fade{position:absolute;left:-30px;right:-30px;top:1167.5px;height:56px;width:auto;object-fit:cover;pointer-events:none}
-  .shop-grid.open .fade{display:none}
-  .product{background:#fff;border-radius:32px;padding:10px 10px 18px;display:flex;flex-direction:column;gap:16px;filter:drop-shadow(0 8px 15px rgba(17,15,57,.07));height:471.5px}
+  /* Boutique : carrousel horizontal */
+  .shop{position:relative;border-radius:clamp(36px,5vw,72px);padding:110px 0 120px;background:linear-gradient(167deg,#F1ECFF 4.4%,#ECF1FF 85%);overflow:hidden}
+  .shop-head{display:flex;flex-direction:column;align-items:center;gap:13px;padding:0 16px}
+  .carousel-nav{position:absolute;top:218px;right:54px;display:flex;gap:16px;z-index:3}
+  .carousel-nav button{width:52px;height:52px;padding:0;border:none;background:none;cursor:pointer;position:relative}
+  .carousel-nav button img{position:absolute;left:-14px;top:-8px;width:80px;height:80px;max-width:none}
+  .carousel-nav button .off{display:none}
+  .carousel-nav button[aria-disabled="true"]{cursor:default}
+  .carousel-nav button[aria-disabled="true"] .on{display:none}
+  .carousel-nav button[aria-disabled="true"] .off{display:block}
+  .carousel-nav .prev .on,.carousel-nav .next .off{transform:scaleX(-1)}
+  .carousel{--start:max(16px,calc((100% - 1200px) / 2 + 28px));display:flex;gap:32px;margin-top:52px;padding:24px var(--start) 30px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--start);scrollbar-width:none;overscroll-behavior-x:contain}
+  .carousel::-webkit-scrollbar{display:none}
+  .carousel:focus-visible{outline-offset:-6px}
+  .shop .fade{position:absolute;right:0;top:296px;width:68px;height:509px;pointer-events:none;z-index:2;transform:translateY(-26px)}
+  .shop .fade img{position:absolute;left:50%;top:50%;width:509px;height:68px;max-width:none;transform:translate(-50%,-50%) rotate(-90deg)}
+  .product{flex:none;width:276px;scroll-snap-align:start;background:#fff;border-radius:32px;padding:10px 10px 18px;display:flex;flex-direction:column;gap:16px;box-shadow:0 8px 30px rgba(17,15,57,.07)}
   .product .img{position:relative;height:320px;border-radius:24px;padding:16px;overflow:hidden;flex:none}
   .product .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .product .img .pill{position:relative}
-  .product.soon .img{background:linear-gradient(150deg,#FDE3F4 0%,#E3F0FD 100%)}
   .product .infos{padding:0 10px;display:flex;flex-direction:column;gap:2px}
-  .product.soon .infos{filter:blur(6px);opacity:.6}
   .product .name{font-family:var(--f-display);font-weight:500;font-size:21px;letter-spacing:-.21px}
   .product .kind{font-size:14px;color:var(--ink)}
   .product .price-row{height:45px;display:flex;align-items:center;justify-content:space-between}
   .product .price{font-family:var(--f-display);font-weight:500;font-size:22px;letter-spacing:-.22px}
-  .product.soon .price{opacity:.5}
-  .add{width:48px;height:48px;border-radius:24px;border:none;background:var(--pink-200);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
-  .add:hover{transform:scale(1.08) rotate(-6deg)}
-  .product.soon .add{opacity:.5}
-  .more{border:2px solid transparent;padding:17px 30px;gap:10px;font-size:17px}
-  .more img{transform:rotate(90deg);transition:transform .3s ease}
-  .more[aria-expanded="true"] img{transform:rotate(-90deg)}
+  .add{width:48px;height:48px;border-radius:24px;border:none;background:var(--pink-200);display:flex;align-items:center;justify-content:center;cursor:not-allowed;opacity:.2}
 
   /* Où me trouver */
   .where{padding-top:120px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
   .where h2{font-family:var(--f-display);font-weight:600;font-size:clamp(36px,4vw,54px);line-height:1.1;letter-spacing:-.54px}
-  .where .lead{font-size:clamp(17px,1.5vw,20px);line-height:1.7;letter-spacing:-.2px;color:var(--ink)}
+  .where .lead{max-width:776px;font-size:clamp(17px,1.5vw,20px);line-height:1.7;letter-spacing:-.2px;color:var(--ink)}
   .where .lead strong{font-weight:700}
-  .photos{position:relative;padding-top:50px;width:min(1016px,100%)}
+  .photos{position:relative;padding-top:30px;width:min(1016px,100%)}
   .photos-frame{position:relative;isolation:isolate}
   .photos-frame::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(129deg,#CDBFF7 5%,#F39CEC 105%);filter:blur(52px);opacity:.35}
   .photos-inner{display:flex;height:clamp(240px,42vw,428px);border:12px solid #fff;border-radius:24px;overflow:hidden;box-shadow:0 0 48px rgba(17,15,57,.02)}
@@ -153,10 +161,11 @@
   .contact .city{font-size:15px;color:var(--ink);margin-top:3px}
   .contact .row{display:flex;align-items:center;justify-content:space-between;gap:16px}
   .contact address{font-style:normal;font-size:16px;line-height:1.27;color:var(--ink)}
-  .status{display:inline-flex;align-items:center;gap:0;font-family:var(--f-display);font-weight:500;font-size:15px;line-height:15px;white-space:nowrap}
-  .status img{width:26px;height:26px;margin:-8px 0 -8px -8px}
+  .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:500;font-size:15px;line-height:15px;white-space:nowrap}
+  .status .dot{position:relative;width:10px;height:10px;flex:none}
+  .status .dot img{position:absolute;left:-8px;top:-8px;width:26px;height:26px;max-width:none}
   .contact .ctas{display:flex;gap:10px;align-items:stretch}
-  .contact .ctas .btn{flex:1 1 auto;padding:13px 22px;font-size:15px;line-height:15px;min-height:56px}
+  .contact .ctas .btn{flex:1 1 auto;padding:11px 20px;font-size:15px;line-height:15px;min-height:56px;letter-spacing:0}
   .icon-btn{width:58px;min-height:56px;flex:none;display:flex;align-items:center;justify-content:center;border:2px solid var(--navy);border-radius:60px;transition:background .2s ease}
   .icon-btn:hover{background:var(--pink-100)}
 
@@ -212,9 +221,11 @@
   }
   @media (max-width:600px){
     .bloc1{padding:72px 0 64px;gap:56px}
-    .btn{padding:18px 28px;font-size:17px}
     .bloc2{padding:24px 0 80px;gap:40px}
-    .shop{padding:72px 16px}
+    .shop{padding:72px 0 80px}
+    .carousel-nav{display:none}
+    .shop .fade{display:none}
+    .carousel{margin-top:24px}
     .contact .name{font-size:24px;line-height:28px}
     .contact .row{flex-wrap:wrap}
     footer .inner{flex-direction:column;align-items:center}
@@ -244,12 +255,13 @@
   </nav>
 </div>
 
-<div class="slider" aria-label="Un bijou n'est pas un objet, c'est un souvenir que l'on porte">
+<div class="slider" role="region" aria-label="Bandeau">
+  <p class="sr">Un bijou n'est pas un objet, c'est un souvenir que l'on porte. Fait avec le cœur, porté avec fierté.</p>
   <div class="slider-track" aria-hidden="true">
-    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte</span><span class="dot"></span>
-    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte</span><span class="dot"></span>
-    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte</span><span class="dot"></span>
-    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte</span><span class="dot"></span>
+    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte.</span><span class="dot"></span>
+    <span>Fait avec le cœur, porté avec fierté.</span><span class="dot"></span>
+    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte.</span><span class="dot"></span>
+    <span>Fait avec le cœur, porté avec fierté.</span><span class="dot"></span>
   </div>
 </div>
 
@@ -268,8 +280,8 @@
         <h2>Des pièces uniques,<br>portées avec <span class="grad">fierté</span></h2>
         <p>Bijoux en résine imaginés, coulés et façonnés à la main, une pièce à la fois.</p>
         <div class="actions">
-          <a class="btn btn-navy" href="#boutique">Voir les nouveautés <img src="../assets/v2/fleche.svg" alt="" width="12" height="10"></a>
-          <a class="btn btn-ghost" href="#ou-me-trouver">Où me trouver ?</a>
+          <a class="btn btn-navy btn-lg" href="#boutique">Voir les nouveautés <img class="arr-white" src="../assets/v2/fleche.svg" alt="" width="12" height="10"><img class="arr-navy" src="../assets/v2/fleche-navy.svg" alt="" width="12" height="10"></a>
+          <a class="btn btn-ghost btn-lg" href="#ou-me-trouver">Où me trouver ?</a>
         </div>
       </div>
       <div class="values">
@@ -317,78 +329,59 @@
       <span class="pill">Vitrine en ligne</span>
       <h2 class="title-60" id="shop-title">Nouveautés de l'atelier</h2>
     </div>
-    <div class="shop-grid-wrap">
-      <div class="shop-grid" id="shop-grid">
+    <div class="carousel-nav">
+      <button class="prev" type="button" aria-controls="carousel" aria-label="Produits précédents" aria-disabled="true"><img class="on" src="../assets/v2/fleche-suivant.svg" alt="" width="80" height="80"><img class="off" src="../assets/v2/fleche-precedent-inactive.svg" alt="" width="80" height="80"></button>
+      <button class="next" type="button" aria-controls="carousel" aria-label="Produits suivants"><img class="on" src="../assets/v2/fleche-suivant.svg" alt="" width="80" height="80"><img class="off" src="../assets/v2/fleche-precedent-inactive.svg" alt="" width="80" height="80"></button>
+    </div>
+    <div class="carousel" id="carousel" tabindex="0" role="region" aria-label="Nouveautés de l'atelier, défilement horizontal">
         <article class="product">
-          <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
+          <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-pink">Label</span></div>
           <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-label="Ajouter Boucles Fleur au panier"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product">
+          <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product">
+          <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill pill-purple">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product">
+          <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill pill-pink">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product">
+          <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
           <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-label="Ajouter Boucles Fleur au panier"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
           <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-label="Ajouter Boucles Fleur au panier"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
           <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-label="Ajouter Boucles Fleur au panier"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+            <div class="price-row"><p class="price">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
         </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <article class="product soon" aria-label="Bientôt disponible">
-          <div class="img"><span class="pill pill-purple">Bientôt</span></div>
-          <div class="infos" aria-hidden="true"><p class="name">Boucles Fleur</p><p class="kind">Résine</p>
-            <div class="price-row"><p class="price">24 €</p><span class="add"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></span></div></div>
-        </article>
-        <img class="fade" src="../assets/v2/fondu-grille.png" alt="" width="1024" height="46">
-      </div>
-      <button class="btn btn-navy more" id="more" type="button" aria-expanded="false" aria-controls="shop-grid"><span>Voir plus</span><img src="../assets/v2/chevron.svg" alt="" width="18" height="18"></button>
     </div>
+    <div class="fade" aria-hidden="true"><img src="../assets/v2/fondu-carrousel.png" alt="" width="509" height="68"></div>
   </section>
 
   <section class="wrap where" id="ou-me-trouver" aria-labelledby="where-title">
     <span class="pill pill-grey rv">Où me retrouver ?</span>
     <h2 id="where-title" class="rv">Mes bijoux, en vrai !</h2>
-    <p class="lead rv">Envie de voir les reflets de la résine avant de craquer ?<br>Les créations Tête Fière sont disponibles dans une seule boutique.<br><strong>D'autres adresses arrivent bientôt.</strong></p>
+    <p class="lead rv">Envie de voir les reflets de la résine avant de craquer ? Les créations Tête Fière sont disponibles dans une seule boutique. <strong>D'autres adresses arrivent bientôt.</strong></p>
     <div class="photos">
       <div class="photos-frame">
         <div class="photos-inner">
@@ -403,7 +396,7 @@
         </div>
         <div class="row">
           <address>24 Grand Place, Huy<br>Belgium, 4500</address>
-          <span class="status" id="status" hidden><img id="status-dot" src="../assets/v2/statut-ouvert.svg" alt="" width="26" height="26"><span id="status-text">Ouvert</span></span>
+          <span class="status" id="status" hidden><span class="dot"><img id="status-dot" src="../assets/v2/statut-ouvert.svg" alt="" width="26" height="26"></span><span id="status-text">Ouvert</span></span>
         </div>
         <div class="ctas">
           <a class="btn btn-navy" href="https://www.google.com/maps/dir/?api=1&amp;destination=Grand%20Place%2024%2C%204500%20Huy%2C%20Belgique" target="_blank" rel="noopener">Itinéraire</a>
@@ -468,14 +461,20 @@
     els.forEach(function (el) { io.observe(el); });
   } else { els.forEach(function (el) { el.classList.add('in'); }); }
 
-  /* Voir plus / voir moins */
-  var grid = document.getElementById('shop-grid'), more = document.getElementById('more');
-  more.addEventListener('click', function () {
-    var open = grid.classList.toggle('open');
-    more.setAttribute('aria-expanded', String(open));
-    more.querySelector('span').textContent = open ? 'Voir moins' : 'Voir plus';
-    if (!open) grid.scrollIntoView({ block: 'start', behavior: 'smooth' });
-  });
+  /* Carrousel de la boutique */
+  var track = document.getElementById('carousel');
+  var prev = document.querySelector('.carousel-nav .prev'), next = document.querySelector('.carousel-nav .next');
+  function step() { var c = track.querySelector('.product'); return c ? c.getBoundingClientRect().width + 32 : 300; }
+  function updateNav() {
+    var max = track.scrollWidth - track.clientWidth - 2;
+    prev.setAttribute('aria-disabled', String(track.scrollLeft <= 2));
+    next.setAttribute('aria-disabled', String(track.scrollLeft >= max));
+  }
+  prev.addEventListener('click', function () { if (prev.getAttribute('aria-disabled') !== 'true') track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+  next.addEventListener('click', function () { if (next.getAttribute('aria-disabled') !== 'true') track.scrollBy({ left: step(), behavior: 'smooth' }); });
+  track.addEventListener('scroll', updateNav, { passive: true });
+  window.addEventListener('resize', updateNav);
+  updateNav();
 
   /* Panier : bientôt disponible */
   var toast = document.getElementById('toast'), t;
