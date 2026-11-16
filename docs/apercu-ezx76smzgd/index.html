@@ -15,6 +15,7 @@
   @font-face{font-family:'Nunito';font-weight:400;font-style:normal;font-display:swap;src:url('../assets/fonts/nunito-latin-400-normal.woff2') format('woff2')}
   @font-face{font-family:'Nunito';font-weight:600;font-style:normal;font-display:swap;src:url('../assets/fonts/nunito-latin-600-normal.woff2') format('woff2')}
   @font-face{font-family:'Nunito';font-weight:700;font-style:normal;font-display:swap;src:url('../assets/fonts/nunito-latin-700-normal.woff2') format('woff2')}
+  @font-face{font-family:'Fredoka One';font-weight:400;font-style:normal;font-display:swap;src:url('../assets/fonts/fredoka-one-latin-400-normal.woff2') format('woff2')}
   @font-face{font-family:'Billion Dreams';font-weight:400;font-style:normal;font-display:swap;src:url('../assets/fonts/BillionDreams.woff2') format('woff2')}
 
   :root{
@@ -107,7 +108,7 @@
 
   /* Bloc 2 : deux cartes */
   .bloc2{padding:40px 0 120px;display:flex;flex-direction:column;align-items:center;gap:72px}
-  .title-60{font-family:var(--f-display);font-weight:600;font-size:clamp(36px,4.4vw,60px);line-height:1.08;letter-spacing:-.01em;text-align:center}
+  .title-60{font-family:var(--f-display);font-weight:600;font-size:clamp(36px,4.2vw,58px);line-height:1.1;letter-spacing:-.58px;text-align:center}
   .cards{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
   .card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;aspect-ratio:588/709;padding:16px;border-radius:56px;overflow:hidden;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
   .card:hover{transform:translateY(-6px)}
@@ -146,7 +147,7 @@
 
   /* Où me trouver */
   .where{padding-top:120px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
-  .where h2{font-family:var(--f-display);font-weight:600;font-size:clamp(36px,4vw,54px);line-height:1.1;letter-spacing:-.54px}
+  .where h2{font-family:var(--f-display);font-weight:600;font-size:clamp(36px,4.2vw,58px);line-height:1.1;letter-spacing:-.58px}
   .where .lead{max-width:776px;font-size:clamp(17px,1.5vw,20px);line-height:1.7;letter-spacing:-.2px;color:var(--ink)}
   .where .lead strong{font-weight:700}
   .photos{position:relative;padding-top:30px;width:min(1016px,100%)}
@@ -170,14 +171,15 @@
   .icon-btn:hover{background:var(--pink-100)}
 
   /* Pauline */
-  .pauline{position:relative;display:flex;align-items:flex-start;padding-top:200px;margin-bottom:-220px}
-  .pauline .text{flex:1 1 0;padding-right:90px;display:flex;flex-direction:column;gap:15.3px}
-  .pauline blockquote{margin:0;font-family:var(--f-script);font-weight:400;font-size:clamp(40px,3.6vw,59px);line-height:1.03;letter-spacing:-.54px}
-  .pauline .text p{font-size:18px;line-height:1.6;letter-spacing:-.18px;color:var(--ink)}
+  .pauline{position:relative;display:flex;align-items:flex-start;padding-top:200px;margin-bottom:-210px}
+  .pauline .text{flex:1 1 0;padding-right:90px;display:flex;flex-direction:column;gap:24px}
+  .pauline blockquote{margin:0;max-width:610px;font-family:'Fredoka One','Fredoka',ui-rounded,sans-serif;font-weight:400;font-size:clamp(40px,4.4vw,60px);line-height:1.008;letter-spacing:-.54px}
+  .pauline .text .bio{max-width:610px;display:flex;flex-direction:column;gap:1.7em;font-size:clamp(17px,1.5vw,20px);line-height:1.7;letter-spacing:-.2px;color:var(--navy)}
   .pauline .photo{position:relative;flex:1 1 0;max-width:500px}
   .pauline .photo > img{width:100%;max-width:496px;height:auto}
-  .stamp{position:absolute;right:-12px;top:-24px;width:156px;height:156px;transform:rotate(-8deg);filter:drop-shadow(0 10px 18px rgba(17,15,57,.22))}
-  .stamp img,.stamp svg{position:absolute;inset:0;width:100%;height:100%}
+  .stamp{position:absolute;right:-32px;top:-27px;width:156px;height:156px;transform:rotate(11.01deg);filter:drop-shadow(0 10px 18px rgba(17,15,57,.22))}
+  .stamp img{position:absolute;inset:0;width:100%;height:100%}
+  .stamp .disc{inset:-3.63%;width:107.26%;height:107.26%}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion:no-preference){.stamp .ring{animation:spin 22s linear infinite}}
 
@@ -188,7 +190,7 @@
   /* Pied de page */
   .footer-wrap{padding:16px}
   footer{background:var(--navy);border-radius:clamp(36px,5vw,72px);min-height:250px;display:flex;align-items:center;padding:40px 0}
-  footer .inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px}
+  footer .inner{width:100%;padding:0 clamp(24px,5vw,80px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px}
   footer .logo{width:190px;height:auto}
   footer .right{display:flex;flex-direction:column;align-items:flex-end;gap:24px}
   .socials{position:relative;width:71px;height:25px}
@@ -410,15 +412,17 @@
   <section class="wrap pauline" aria-label="L'atelier">
     <div class="text rv">
       <blockquote>“Je crée ce que j'aimerais porter.”</blockquote>
-      <p>Derrière Tête Fière, il y a Pauline. Entre moules, pigments et coulées de résine, elle façonne des pièces qui assument leur caractère : délicates, mais jamais fades.</p>
-      <p>Chaque création est fabriquée en petite série ou sur commande, dans son atelier, avec le soin qu'on met aux choses qu'on garde longtemps.</p>
+      <div class="bio">
+        <p>Derrière Tête Fière, il y a moi, Pauline. Entre moules, pigments et coulées de résine, je façonne des pièces qui assument leur caractère.</p>
+        <p>Chaque création est fabriquée en petite série ou sur commande, avec le soin qu'on met aux choses qu'on garde longtemps.</p>
+      </div>
     </div>
     <div class="photo rv">
       <img src="../assets/v2/pauline.webp" alt="Pauline, créatrice de Tête Fière, souriante" width="992" height="890" loading="lazy">
       <div class="stamp" aria-hidden="true">
-        <img src="../assets/v2/tampon.svg" alt="" width="156" height="156">
-        <svg class="ring" viewBox="0 0 156 156"><defs><path id="ring-path" d="M17,78 a61,61 0 1,1 122,0 a61,61 0 1,1 -122,0"></path></defs>
-          <text font-family="Fredoka, sans-serif" font-weight="600" font-size="13.5" fill="#110F39"><textPath href="#ring-path" textLength="380" lengthAdjust="spacing">100% PASSIONÉE • PIÈCE UNIQUE • SUR MESURE • </textPath></text></svg>
+        <img class="disc" src="../assets/v2/tampon.svg" alt="" width="167" height="167">
+        <img class="ring" src="../assets/v2/tampon-texte.svg" alt="" width="156" height="156">
+        <img src="../assets/v2/tampon-coeur.svg" alt="" width="156" height="156">
       </div>
     </div>
   </section>
@@ -431,7 +435,7 @@
 
 <div class="footer-wrap">
   <footer>
-    <div class="wrap inner">
+    <div class="inner">
       <img class="logo" src="../assets/v2/logo-footer.svg" alt="Tête Fière" width="190" height="100">
       <div class="right">
         <div class="socials">
@@ -439,7 +443,7 @@
           <a class="fb" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener" aria-label="Facebook de Tête Fière"></a>
           <a class="ig" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener" aria-label="Instagram de Tête Fière"></a>
         </div>
-        <p class="copy">© <em>Tête Fière !</em><br>Tous droits réservés</p>
+        <p class="copy">© Tête Fière !<br>Tous droits réservés</p>
       </div>
     </div>
   </footer>
