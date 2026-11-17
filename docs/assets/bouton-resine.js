@@ -20,15 +20,17 @@
   'use strict';
 
   var CFG = window.boutonResine = {
-    fill: 2.8,          // durée du remplissage, en secondes (plein à l'œil vers 2 s, puis se pose)
+    // Valeurs choisies par Denis sur la page d'essai (17 novembre 2026), sauf tilt et stir.
+    fill: 1.5,          // durée du remplissage, en secondes (plein à l'œil vers 70 %, puis se pose)
     drain: 0.6,         // durée de la remontée du bleu nuit à la sortie, en secondes
     grain: 0.07,        // force du grain poudreux
-    wave: 1,            // force des vagues et du balancement des bords (0 = bord plat et horizontal)
-    relief: 1,          // épaisseur de la pâte (force des plis et des ombres)
-    blur: 3.5,          // flou de la photo (plus grand = zones de couleur plus larges, 0 = photo nette)
+    wave: 2,            // hauteur de la vague des bords (0 = bord plat)
+    tilt: 1,            // balancement des bords, qui penchent d'un côté puis de l'autre (0 = horizontal)
+    relief: 1.5,        // épaisseur de la pâte (force des plis et des ombres)
+    blur: 0.9,          // flou de la photo (plus grand = zones de couleur plus larges, 0 = photo nette)
     lighten: 0.14,      // part de blanc mêlée à la résine
     stir: 1,            // réaction de la pâte au curseur (0 = aucune)
-    zoom: 0.3           // hauteur de la fenêtre lue dans la photo (plus petit = plus zoomé)
+    zoom: 0.5           // hauteur de la fenêtre lue dans la photo (plus petit = plus zoomé)
   };
 
   var mq = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
@@ -50,7 +52,7 @@
     'uniform sampler2D tex;\n' +
     'uniform vec2 res;\n' +        // taille du canvas en pixels
     'uniform vec4 win;\n' +        // fenêtre lue dans la photo : x0, y0, largeur, hauteur (uv)
-    'uniform float t, level, wave, bumpA, bumpC, cov, aspect, grain, lighten, fill, relief, blur;\n' +
+    'uniform float t, level, wave, tilt, bumpA, bumpC, cov, aspect, grain, lighten, fill, relief, blur;\n' +
     'uniform vec2 mp, mv;\n' +     // curseur (en P) et sa vitesse lissée (P par seconde)
     'uniform float mOn;\n' +       // présence du curseur, de 0 à 1
     'uniform vec3 mixCol;\n' +
@@ -61,14 +63,14 @@
     '  return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }\n' +
     'float fbm(vec2 q){ float a = 0.5, s = 0.0; for (int k = 0; k < 3; k++){ s += a * noise(q); q = q * 2.07 + 17.1; a *= 0.45; } return s / 0.8; }\n' +
     'float surf(float x){ float X = (x - 0.5) * aspect;\n' +
-    '  float tilt = 0.075 * sin(t * 1.1) + 0.035 * sin(t * 2.3 + 1.0);\n' +
+    '  float k = tilt * (0.075 * sin(t * 1.1) + 0.035 * sin(t * 2.3 + 1.0));\n' +
     '  float w = 0.75 * sin(X * 1.5 + t * 1.7) + 0.25 * sin(X * 2.9 - t * 2.1 + 1.3);\n' +
     '  float d = (x - bumpC) * aspect / 1.6;\n' +
     '  float m = (x * aspect - mp.x); m = 0.07 * mOn * exp(-m * m / 0.5);\n' +     // la pâte se soulève sous le curseur
-    '  return level + wave * (tilt * X + 0.1 * w) + bumpA * exp(-d * d) + m; }\n' +
+    '  return level + k * X + 0.06 * wave * w + bumpA * exp(-d * d) + m; }\n' +
     'float covr(float x){ float X = (x - 0.5) * aspect;\n' +
-    '  float tilt = -0.07 * sin(t * 1.3 + 0.6);\n' +
-    '  return cov + wave * (tilt * X + 0.08 * sin(X * 1.7 - t * 1.6 + 2.0)); }\n' +
+    '  float k = -0.07 * tilt * sin(t * 1.3 + 0.6);\n' +
+    '  return cov + k * X + 0.05 * wave * sin(X * 1.7 - t * 1.6 + 2.0); }\n' +
     // Relief de la pâte : gros plis qui remontent lentement avec le remplissage.
     'float H(vec2 P){ vec2 q = vec2(fbm(P * 0.8 + vec2(0.0, -t * 0.18)), fbm(P * 0.8 + vec2(4.1, 2.7 - t * 0.13)));\n' +
     '  return fbm(P * 1.25 + 2.4 * q + vec2(0.0, -fill * 0.9)); }\n' +
@@ -135,7 +137,7 @@
     var loc = gl.getAttribLocation(prog, 'p');
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    ['tex', 'res', 'win', 't', 'level', 'wave', 'bumpA', 'bumpC', 'cov', 'aspect', 'grain', 'lighten',
+    ['tex', 'res', 'win', 't', 'level', 'wave', 'tilt', 'bumpA', 'bumpC', 'cov', 'aspect', 'grain', 'lighten',
      'fill', 'relief', 'blur', 'mp', 'mv', 'mOn', 'mixCol', 'bg']
       .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
     canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); disable(); });
@@ -236,17 +238,21 @@
   }
 
   function draw(now) {
-    var p = cur.p, s = CFG.stir;
+    var p = cur.p, s = CFG.stir, asp = cur.w / cur.h;
+    // Marge des bords : jusqu'où vagues et balancement dépassent le niveau moyen. Le niveau part
+    // assez bas pour que le bouton soit vide au départ et monte assez haut pour qu'il soit plein.
+    var reach = CFG.tilt * 0.11 * asp / 2 + CFG.wave * 0.06 + 0.07;
+    var reachC = CFG.tilt * 0.07 * asp / 2 + CFG.wave * 0.05 + 0.03;
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.uniform2f(U.res, canvas.width, canvas.height);
     gl.uniform4f(U.win, cur.win[0], cur.win[1], cur.win[2], cur.win[3]);
     gl.uniform1f(U.t, (now - cur.t0) / 1000);
-    gl.uniform1f(U.level, -0.4 + 2.0 * ease(p));
-    gl.uniform1f(U.wave, CFG.wave);
+    gl.uniform1f(U.level, -reach - 0.3 + (1.3 + 2 * reach) * ease(p));
+    gl.uniform1f(U.wave, CFG.wave); gl.uniform1f(U.tilt, CFG.tilt);
     gl.uniform1f(U.bumpA, 0.3 * (1 - p) * (1 - p));
     gl.uniform1f(U.bumpC, cur.bumpC);
-    gl.uniform1f(U.cov, -0.35 + 1.75 * easeInOut(cur.c));
-    gl.uniform1f(U.aspect, cur.w / cur.h);
+    gl.uniform1f(U.cov, -reachC + (1 + 2 * reachC) * easeInOut(cur.c));
+    gl.uniform1f(U.aspect, asp);
     gl.uniform1f(U.grain, CFG.grain); gl.uniform1f(U.fill, ease(p));
     gl.uniform1f(U.relief, CFG.relief); gl.uniform1f(U.blur, CFG.blur);
     gl.uniform1f(U.lighten, CFG.lighten);
