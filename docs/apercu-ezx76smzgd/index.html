@@ -64,7 +64,7 @@
   .btn-navy.rb-on{text-shadow:0 1px 3px rgba(17,15,57,.45)}
   .btn-navy.rb-on img{filter:drop-shadow(0 1px 1.5px rgba(17,15,57,.45))}
   .rb-canvas{position:absolute;z-index:-1;border-radius:999px;pointer-events:none}
-  /* Bouton blanc aimanté (nouveau pied de page, à venir) : l'ombre s'écarte du curseur.
+  /* Bouton blanc aimanté (bloc de contact du pied de page) : l'ombre s'écarte du curseur.
      --sx / --sy (ombre) et --tx / --ty (bouton) sont écrits par assets/bouton-aimant.js.
      Ombre au repos 0 16px 40px, lavande à 12 % (valeurs choisies par Denis, 17 novembre 2026). */
   .btn-white{--sx:0px;--sy:16px;--tx:0px;--ty:0px;background:#fff;color:var(--navy);box-shadow:var(--sx) var(--sy) 40px rgba(66,54,160,.12),0 1px 2px rgba(17,15,57,.04);transform:translate(var(--tx),var(--ty))}
@@ -222,6 +222,16 @@
   /* Phrase finale */
   .quote{position:relative;z-index:2;overflow:hidden;padding:130px clamp(16px,5vw,90px);text-align:center}
   .quote p{font-family:var(--f-script);font-weight:400;font-size:clamp(56px,11.4vw,190px);line-height:.86;letter-spacing:-.01em;background:linear-gradient(157deg,#F7A9DF 0%,#CDBFF7 50%,#9CC8F3 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;padding:.08em 0}
+
+  /* Bloc de contact (nouveau pied de page, d'après la capture de Denis du 17 novembre ; Figma non relu, limite d'appels) */
+  .outro{position:relative;overflow:hidden;padding:clamp(40px,7vw,96px) var(--gutter) clamp(72px,10vw,128px);display:flex;flex-direction:column;align-items:center;gap:clamp(28px,4vw,44px);text-align:center}
+  .outro h2{position:relative;z-index:1;text-wrap:balance}
+  .outro-actions{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:center}
+  .outro-actions .btn{min-width:200px}
+  .btn-white{gap:12px}
+  .btn-white img{width:auto;height:auto;margin-block:-4px}   /* l'icône ne doit pas agrandir le bouton (Large H59) */
+  .outro .bubble{z-index:0}
+  @media (max-width:520px){.outro-actions{width:100%;flex-direction:column}.outro-actions .btn{width:100%;min-width:0}}
 
   /* Pied de page */
   .footer-wrap{padding:16px}
@@ -505,6 +515,18 @@
     <p class="rv" aria-hidden="true">Pour que chaque pièce<br>vous ressemble.</p>
   </section>
 
+  <section class="outro" aria-labelledby="outro-title">
+    <span class="bubble float" aria-hidden="true" style="width:clamp(70px,9vw,150px);height:clamp(70px,9vw,150px);left:4%;top:38%;opacity:.75;--dur:9s;--float:-14px"></span>
+    <span class="bubble float" aria-hidden="true" style="width:clamp(50px,6.6vw,110px);height:clamp(50px,6.6vw,110px);right:6%;top:16%;opacity:.75;--dur:7.5s;--delay:-2.5s;--float:-10px"></span>
+    <span class="bubble float" aria-hidden="true" style="width:clamp(120px,14vw,230px);height:clamp(120px,14vw,230px);right:-2%;bottom:-90px;opacity:.75;--dur:11s;--delay:-5s;--float:-16px"></span>
+    <h2 class="title-60 rv" id="outro-title">Une demande de bijou&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
+    <div class="outro-actions rv">
+      <a class="btn btn-navy btn-lg" href="#" data-soon>Me contacter</a>
+      <a class="btn btn-white btn-lg" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
+      <a class="btn btn-white btn-lg" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
+    </div>
+  </section>
+
 </main>
 
 <div class="footer-wrap">
@@ -633,14 +655,18 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !bMenu.hidden) { setMenu(false); bBtn.focus(); } });
   document.addEventListener('click', function (e) { if (!bMenu.hidden && !e.target.closest('.burger')) setMenu(false); });
 
-  /* Panier : bientôt disponible */
+  /* Panier et « Me contacter » : bientôt disponibles */
   var toast = document.getElementById('toast'), t;
+  function soon(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(t); t = setTimeout(function () { toast.classList.remove('show'); }, 2400);
+  }
   document.querySelectorAll('.add').forEach(function (b) {
-    b.addEventListener('click', function () {
-      toast.textContent = 'Le panier arrive bientôt.';
-      toast.classList.add('show');
-      clearTimeout(t); t = setTimeout(function () { toast.classList.remove('show'); }, 2400);
-    });
+    b.addEventListener('click', function () { soon('Le panier arrive bientôt.'); });
+  });
+  document.querySelectorAll('[data-soon]').forEach(function (b) {
+    b.addEventListener('click', function (e) { e.preventDefault(); soon('Bientôt disponible.'); });
   });
 
   /* Statut d'ouverture de Rose, Concept Store (heure de Bruxelles) */
