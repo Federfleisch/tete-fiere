@@ -153,13 +153,13 @@
   .shop{position:relative;border-radius:clamp(36px,5vw,72px);padding:110px 0 120px;background:linear-gradient(167deg,#F1ECFF 4.4%,#ECF1FF 85%);overflow:hidden}
   .shop-head{display:flex;flex-direction:column;align-items:center;gap:13px;padding:0 16px}
   .carousel-nav{position:absolute;top:218px;right:54px;display:flex;gap:16px;z-index:3}
-  .carousel-nav button{width:52px;height:52px;padding:0;border:none;background:none;cursor:pointer;position:relative}
-  .carousel-nav button img{position:absolute;left:-14px;top:-8px;width:80px;height:80px;max-width:none;transition:opacity .35s ease}
-  .carousel-nav button .off{opacity:0}
-  .carousel-nav button[aria-disabled="true"]{cursor:default}
-  .carousel-nav button[aria-disabled="true"] .on{opacity:0}
-  .carousel-nav button[aria-disabled="true"] .off{opacity:1}
-  .carousel-nav .prev .on,.carousel-nav .next .off{transform:scaleX(-1)}
+  /* Flèches : cercle blanc 52 px, ombre de la maquette (0 6 14, violet 400 à 8 %), flèche SVG de Denis (20 × 18) */
+  .carousel-nav button{width:52px;height:52px;padding:0;border:none;border-radius:50%;background:#fff;box-shadow:0 6px 14px rgba(66,17,213,.08);color:var(--navy);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s ease}
+  .carousel-nav button:hover{background:var(--pink-100)}
+  .carousel-nav button svg{display:block;width:20px;height:18px;transition:opacity .35s ease}
+  .carousel-nav .prev svg{transform:scaleX(-1)}
+  .carousel-nav button[aria-disabled="true"]{cursor:default;background:#fff}
+  .carousel-nav button[aria-disabled="true"] svg{opacity:.2}
   .carousel{--start:max(16px,calc((100% - 1200px) / 2 + 28px));display:flex;gap:32px;margin-top:52px;padding:24px 54px 30px var(--start);overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--start);scrollbar-width:none;overscroll-behavior-x:contain}
   .carousel::-webkit-scrollbar{display:none}
   .carousel:focus-visible{outline-offset:-6px}
@@ -452,8 +452,8 @@
       <h2 class="title-60" id="shop-title">Nouveautés de l'atelier</h2>
     </div>
     <div class="carousel-nav">
-      <button class="prev" type="button" aria-controls="carousel" aria-label="Produits précédents" aria-disabled="true"><img class="on" src="../assets/v2/fleche-suivant.svg" alt="" width="80" height="80"><img class="off" src="../assets/v2/fleche-precedent-inactive.svg" alt="" width="80" height="80"></button>
-      <button class="next" type="button" aria-controls="carousel" aria-label="Produits suivants"><img class="on" src="../assets/v2/fleche-suivant.svg" alt="" width="80" height="80"><img class="off" src="../assets/v2/fleche-precedent-inactive.svg" alt="" width="80" height="80"></button>
+      <button class="prev" type="button" aria-controls="carousel" aria-label="Produits précédents" aria-disabled="true"><svg viewBox="0 0 20 18" fill="none" aria-hidden="true" focusable="false"><path d="M0.824951 8.53924H18.825M11.1107 16.2535L18.825 8.53924L11.1107 0.824951" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="next" type="button" aria-controls="carousel" aria-label="Produits suivants"><svg viewBox="0 0 20 18" fill="none" aria-hidden="true" focusable="false"><path d="M0.824951 8.53924H18.825M11.1107 16.2535L18.825 8.53924L11.1107 0.824951" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
     <div class="carousel" id="carousel" tabindex="0" role="region" aria-label="Nouveautés de l'atelier, défilement horizontal">
         <article class="product">
