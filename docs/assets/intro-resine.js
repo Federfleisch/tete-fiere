@@ -1,13 +1,18 @@
 /*
- * Arrivée sur la page (essai) : l'écran, bleu nuit, se remplit de résine du bas vers le haut,
- * comme le bouton Primary au survol. Une fois plein, le voile s'efface sur la page et les
- * éléments du premier écran (bandeau, navigation, tampon, bande défilante) entrent en scène.
+ * Arrivée sur la page (essai) : l'écran est bleu nuit, puis le cadre du héro se remplit de résine
+ * du bas vers le haut, comme le bouton Primary au survol. En fin de remplissage, la pâte se pose :
+ * relief, grain, flou et déformation s'effacent, et la dernière image est exactement la photo
+ * statique du héro (hero.jpg, cadrée comme le CSS : center / cover). Hors du héro (bandeau du haut,
+ * bande défilante), le voile reste bleu nuit, comme ces deux bandes. Le voile s'efface ensuite et
+ * le bandeau, la navigation, le tampon et la bande défilante entrent en scène.
  *
  * Utilisation : <div class="intro-veil"><canvas></canvas></div> au début du body, la classe
- * « arrive » posée sur <html> (pas « intro » : la section d'intro porte déjà ce nom) dans le head (sauf « réduire les animations »), puis
- * <script src="../assets/intro-resine.js" data-src="../assets/v2/main-background-1920.jpg" defer>.
+ * « arrive » posée sur <html> dans le head (pas « intro » : la section d'intro porte déjà ce nom),
+ * sauf avec « réduire les animations », puis
+ * <script src="../assets/intro-resine.js" data-src="../assets/v2/hero.jpg" defer>.
  * Classes posées sur <html> : arrive-go (entrée des éléments), arrive-done (voile effacé).
- * Sans WebGL 2 ou si l'image tarde : le voile s'efface simplement. Réglages : window.introResine.
+ * Sans WebGL 2, si l'image tarde ou si l'appareil est trop lent : le voile s'efface simplement.
+ * Réglages (à poser avant le chargement) : window.introResine.
  */
 (function () {
   'use strict';
@@ -17,19 +22,21 @@
 
   var CFG = window.introResine = {
     fill: 1.6,      // durée du remplissage, en secondes
-    hold: 0.12,     // pause, écran plein, avant de dévoiler la page
-    fade: 0.7,      // durée de l'effacement du voile, en secondes
+    settle: 0.4,    // part de la fin du remplissage pendant laquelle la pâte se pose (0 à 1)
+    hold: 0.15,     // pause sur l'image finale avant de dévoiler la page
     wait: 1.5,      // attente maximale de l'image avant de renoncer, en secondes
+    tilt: 0.14,     // inclinaison du bord (en hauteurs de héro par largeur de héro)
     grain: 0.04,
     relief: 1.2,
-    blur: 1.6,      // flou de la photo (niveau de mipmap)
-    res: 0.6        // résolution du calcul par rapport à l'écran (la matière est floue)
+    blur: 1.6,      // flou de la photo pendant la montée (niveau de mipmap), 0 à la fin
+    res: 1          // résolution du calcul par rapport à l'écran
   };
 
   var veil = document.querySelector('.intro-veil');
   var canvas = veil && veil.querySelector('canvas');
+  var hero = document.querySelector('.hero');
   var script = document.currentScript;
-  var SRC = (script && script.getAttribute('data-src')) || 'assets/v2/main-background-1920.jpg';
+  var SRC = (script && script.getAttribute('data-src')) || 'assets/v2/hero.jpg';
 
   var finished = false;
   function finish() {
@@ -41,62 +48,67 @@
       if (veil && veil.parentNode) veil.parentNode.removeChild(veil);
     }, 1800);
   }
-  if (!veil || !canvas) { finish(); return; }
+  if (!veil || !canvas || !hero) { finish(); return; }
 
   var VS = '#version 300 es\n' +
     'in vec2 p; out vec2 v;\n' +
     'void main(){ v = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }';
 
-  /* v de 0 à 1 (y depuis le bas) ; P = (x * aspect, y), en hauteurs d'écran. */
+  /* v : écran, de 0 à 1 (y depuis le bas). hv : position dans le héro (0 en bas, 1 en haut).
+     P = (x * aspect du héro, hv), en hauteurs de héro. settle : 0 pendant la montée, 1 = photo nette. */
   var FS = '#version 300 es\n' +
     'precision highp float;\n' +
     'uniform sampler2D tex;\n' +
     'uniform vec2 res;\n' +
-    'uniform float t, level, aspect, imgAsp, grain, relief, blur, fill;\n' +
+    'uniform vec2 band;\n' +       // bas et haut du héro, en fraction de la hauteur d'écran (depuis le bas)
+    'uniform float t, level, aspect, imgAsp, grain, relief, blur, fill, settle, tilt;\n' +
     'in vec2 v; out vec4 o;\n' +
     'float hash(vec2 q){ q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }\n' +
     'float noise(vec2 q){ vec2 i = floor(q), f = fract(q); vec2 u = f * f * (3.0 - 2.0 * f);\n' +
     '  return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }\n' +
     'float fbm(vec2 q){ float a = 0.5, s = 0.0; for (int k = 0; k < 3; k++){ s += a * noise(q); q = q * 2.07 + 17.1; a *= 0.45; } return s / 0.8; }\n' +
-    // Bord de la résine : niveau + balancement + vague longue.
+    // Bord : niveau + inclinaison franche qui balance un peu + vague longue.
     'float surf(float x){ float X = (x - 0.5) * aspect;\n' +
-    '  float k = 0.045 * sin(t * 1.1) + 0.02 * sin(t * 2.3 + 1.0);\n' +
+    '  float k = tilt + 0.05 * sin(t * 1.2) + 0.025 * sin(t * 2.3 + 1.0);\n' +
     '  float w = 0.7 * sin(X * 2.4 + t * 1.7) + 0.3 * sin(X * 5.3 - t * 2.1 + 1.3);\n' +
     '  return level + k * X + 0.03 * w; }\n' +
-    // Relief de la pâte : gros plis qui remontent avec le remplissage.
     'float H(vec2 P){ vec2 q = vec2(fbm(P * 1.5 + vec2(0.0, -t * 0.22)), fbm(P * 1.5 + vec2(4.1, 2.7 - t * 0.17)));\n' +
     '  return fbm(P * 2.2 + 2.4 * q + vec2(0.0, -fill * 1.2)); }\n' +
+    // Photo cadrée comme le CSS du héro : center / cover.
+    'vec2 cover(vec2 h){ vec2 uv = h;\n' +
+    '  if (aspect > imgAsp) uv.y = 0.5 + (h.y - 0.5) * imgAsp / aspect; else uv.x = 0.5 + (h.x - 0.5) * aspect / imgAsp;\n' +
+    '  return vec2(uv.x, 1.0 - uv.y); }\n' +
     'void main(){\n' +
     '  vec4 bg = vec4(0.067, 0.059, 0.224, 1.0);\n' +
-    '  float px = 1.0 / res.y;\n' +
-    '  float depth = surf(v.x) - v.y;\n' +
+    '  float hv = (v.y - band.x) / (band.y - band.x);\n' +
+    '  if (hv < 0.0 || hv > 1.0) { o = bg; return; }\n' +   // bandeau et bande défilante : bleu nuit
+    '  vec2 h = vec2(v.x, hv);\n' +
+    '  if (settle >= 1.0) { o = vec4(texture(tex, cover(h)).rgb, 1.0); return; }\n' +
+    '  float px = 1.0 / (res.y * (band.y - band.x));\n' +
+    '  float depth = surf(v.x) - hv;\n' +
     '  float a = smoothstep(-1.0 * px, 1.0 * px, depth);\n' +
     '  if (a <= 0.0) { o = bg; return; }\n' +
-    '  vec2 P = vec2(v.x * aspect, v.y);\n' +
+    '  float m = 1.0 - settle;\n' +                          // force de la matière, qui s'efface en fin de course
+    '  vec2 P = vec2(v.x * aspect, hv);\n' +
     '  float e = 0.006;\n' +
     '  float h0 = H(P), hx = H(P + vec2(e, 0.0)), hy = H(P + vec2(0.0, e));\n' +
-    // Photo en « cover », déformée par le relief (la matière coule).
-    '  vec2 uv = v;\n' +
-    '  if (aspect > imgAsp) uv.y = 0.5 + (v.y - 0.5) * imgAsp / aspect; else uv.x = 0.5 + (v.x - 0.5) * aspect / imgAsp;\n' +
-    '  uv += (vec2(h0, hy) - 0.5) * 0.05;\n' +
-    '  uv.y = 1.0 - uv.y;\n' +
-    '  vec3 c = textureLod(tex, uv, blur).rgb;\n' +
+    '  vec2 uv = cover(h + (vec2(h0, hy) - 0.5) * 0.05 * m);\n' +
+    '  vec3 c = textureLod(tex, uv, blur * m).rgb;\n' +
     '  vec3 n = normalize(vec3((h0 - hx) * 2.4 * relief / (e * 60.0), (h0 - hy) * 2.4 * relief / (e * 60.0), 1.0));\n' +
     '  float light = dot(n, normalize(vec3(-0.55, 0.65, 0.75)));\n' +
     '  float sh = clamp(0.62 + 0.5 * light, 0.0, 1.2);\n' +
-    '  sh = mix(1.0, sh, clamp(relief, 0.0, 1.5) * 0.7);\n' +
+    '  sh = mix(1.0, sh, clamp(relief, 0.0, 1.5) * 0.7 * m);\n' +
     '  vec3 deep = c * c * 1.05;\n' +
     '  c = sh < 1.0 ? mix(deep, c, smoothstep(0.55, 1.0, sh)) : c * sh;\n' +
-    '  c = mix(c, vec3(1.0), 0.16 * smoothstep(0.62, 0.92, h0) * relief);\n' +
-    // Bord bombé : plus sombre juste sous le bord, liseré clair.
+    '  c = mix(c, vec3(1.0), 0.16 * smoothstep(0.62, 0.92, h0) * relief * m);\n' +
     '  float dpx = depth / px;\n' +
     '  c = mix(c * c * 1.05, c, 0.45 + 0.55 * smoothstep(0.0, 26.0, dpx));\n' +
     '  c += 0.14 * (1.0 - smoothstep(0.0, 3.0, dpx));\n' +
-    '  c += (hash(gl_FragCoord.xy + floor(t * 12.0) * 7.13) - 0.5) * grain;\n' +
+    '  c += (hash(gl_FragCoord.xy + floor(t * 12.0) * 7.13) - 0.5) * grain * m;\n' +
     '  o = mix(bg, vec4(clamp(c, 0.0, 1.0), 1.0), a);\n' +
     '}';
 
-  var gl, U = {}, imgAsp = 16 / 9, t0 = 0, scale = 1;
+  var gl, U = {}, imgAsp = 3 / 2, t0 = 0;
 
   function initGL() {
     gl = canvas.getContext('webgl2', { alpha: false, antialias: false });
@@ -118,28 +130,36 @@
     var loc = gl.getAttribLocation(prog, 'p');
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    ['tex', 'res', 't', 'level', 'aspect', 'imgAsp', 'grain', 'relief', 'blur', 'fill']
+    ['tex', 'res', 'band', 't', 'level', 'aspect', 'imgAsp', 'grain', 'relief', 'blur', 'fill', 'settle', 'tilt']
       .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
     return true;
   }
 
   function size() {
-    // Résolution réduite : la matière est floue, inutile de calculer chaque pixel.
-    scale = Math.min(window.devicePixelRatio || 1, 1.5) * CFG.res;
+    var scale = Math.min(window.devicePixelRatio || 1, 2) * CFG.res;
     canvas.width = Math.max(2, Math.round(window.innerWidth * scale));
     canvas.height = Math.max(2, Math.round(window.innerHeight * scale));
   }
 
   function ease(p) { return 1 - Math.pow(1 - p, 1.6); }
+  function smooth(a, b, x) { var q = Math.max(0, Math.min(1, (x - a) / (b - a))); return q * q * (3 - 2 * q); }
 
   function draw(now, p) {
-    var asp = canvas.width / canvas.height;
+    // Le héro peut bouger pendant le chargement (polices, bandeau mesuré) : relu à chaque image.
+    var r = hero.getBoundingClientRect(), vh = window.innerHeight;
+    var bottom = 1 - r.bottom / vh, top = 1 - r.top / vh;
+    var asp = window.innerWidth / Math.max(1, r.height);
+    // Marge du bord : inclinaison et vague, pour partir sous le héro et finir au-dessus.
+    var reach = (CFG.tilt + 0.075) * asp / 2 + 0.03 + 0.01;
+    var settle = smooth(1 - CFG.settle, 1, p);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.uniform2f(U.res, canvas.width, canvas.height);
+    gl.uniform2f(U.band, bottom, top);
     gl.uniform1f(U.t, (now - t0) / 1000 + 7.0);
-    // Le niveau part sous l'écran (bord ondulé compris) et finit au-dessus.
-    gl.uniform1f(U.level, -0.1 + 1.25 * ease(p));
+    gl.uniform1f(U.level, -reach + (1 + 2 * reach) * ease(p));
     gl.uniform1f(U.fill, ease(p));
+    gl.uniform1f(U.settle, p >= 1 ? 1 : settle);
+    gl.uniform1f(U.tilt, CFG.tilt);
     gl.uniform1f(U.aspect, asp);
     gl.uniform1f(U.imgAsp, imgAsp);
     gl.uniform1f(U.grain, CFG.grain);
@@ -153,7 +173,7 @@
     // Chien de garde : sur un appareil trop lent pour suivre, la page s'affiche quand même.
     setTimeout(finish, (CFG.fill + CFG.hold) * 1000 + 900);
     (function frame(now) {
-      var p = Math.min(1, (now - t0) / 1000 / CFG.fill);
+      var p = Math.max(0, Math.min(1, (now - t0) / 1000 / CFG.fill));
       draw(now, p);
       if (p < 1) { requestAnimationFrame(frame); return; }
       setTimeout(finish, CFG.hold * 1000);
@@ -181,8 +201,8 @@
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.uniform1i(U.tex, 0);
     run();
   };
