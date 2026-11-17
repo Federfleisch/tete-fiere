@@ -64,6 +64,10 @@
   .btn-navy.rb-on{text-shadow:0 1px 3px rgba(17,15,57,.45)}
   .btn-navy.rb-on img{filter:drop-shadow(0 1px 1.5px rgba(17,15,57,.45))}
   .rb-canvas{position:absolute;z-index:-1;border-radius:999px;pointer-events:none}
+  /* Bouton blanc aimanté (nouveau pied de page, à venir) : l'ombre s'écarte du curseur.
+     --sx / --sy (ombre) et --tx / --ty (bouton) sont écrits par assets/bouton-aimant.js.
+     Ombre au repos 0 16px 40px, lavande à 12 % (valeurs choisies par Denis, 17 novembre 2026). */
+  .btn-white{--sx:0px;--sy:16px;--tx:0px;--ty:0px;background:#fff;color:var(--navy);box-shadow:var(--sx) var(--sy) 40px rgba(66,54,160,.12),0 1px 2px rgba(17,15,57,.04);transform:translate(var(--tx),var(--ty))}
 
   /* Pastilles */
   .pill{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:999px;font-family:var(--f-display);font-weight:600;font-size:15px;line-height:1;letter-spacing:.9px;text-transform:uppercase;color:var(--grey-600);background:#fff}
@@ -660,5 +664,6 @@
 </script>
 <script src="../assets/resine.js" defer></script>
 <script src="../assets/bouton-resine.js" data-src="../assets/v2/hero.jpg" defer></script>
+<script src="../assets/bouton-aimant.js" defer></script>
 </body>
 </html>
