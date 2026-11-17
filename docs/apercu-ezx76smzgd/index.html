@@ -42,17 +42,28 @@
   .wrap{width:min(1200px,100% - 2 * var(--gutter));margin-inline:auto}
 
   /* Boutons (styleguide) : Medium H49 padding 16/32 texte 16 ; Large H59 padding 21/40 texte 18 ; gap 8 ; rayon 999.
-     Survol Primary : dégradé 1, texte et flèche bleu nuit. Survol Secondary : contour rose, texte et flèche bleu nuit. */
+     Survol Primary : dégradé 1, texte et flèche bleu nuit. Survol Secondary : contour rose, texte et flèche bleu nuit ; fond rose clair en aplat (essai bouton, 17 novembre). */
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 30px;border-radius:999px;border:2px solid transparent;font-family:var(--f-display);font-weight:500;font-size:16px;line-height:17px;letter-spacing:-.16px;cursor:pointer;white-space:nowrap;transition:background .25s ease,color .25s ease,border-color .25s ease}
   .btn-lg{padding:19px 38px;font-size:18px;letter-spacing:-.18px}
   .btn-navy{background:var(--navy);color:#fff}
   .btn-navy:hover{background:var(--gradient-1);color:var(--navy)}
   .btn-ghost{background:transparent;border-color:var(--navy);color:var(--navy)}
-  .btn-ghost:hover{border-color:var(--pink-200)}
+  .btn-ghost:hover{background:var(--pink-100);border-color:var(--pink-200)}
   .btn img{flex:none;width:12px;height:10px}
   .btn .arr-navy{display:none}
   .btn-navy:hover .arr-white{display:none}
   .btn-navy:hover .arr-navy{display:block}
+  /* Survol « résine » du Primary (assets/bouton-resine.js) : le bouton se remplit de résine de bas en haut, texte blanc.
+     La classe .rb n'est posée que si l'effet est disponible (souris, WebGL 2, animations permises) ;
+     sinon le survol ci-dessus reste en place. */
+  .btn.rb{position:relative;isolation:isolate;transition:color .25s ease,border-color .25s ease}
+  .btn-navy.rb:hover{background:var(--navy);color:#fff}
+  .btn-navy.rb:hover > .arr-white{display:block}
+  .btn-navy.rb:hover > .arr-navy{display:none}
+  .btn-navy.rb.rb-on{background:transparent}
+  .btn-navy.rb-on{text-shadow:0 1px 3px rgba(17,15,57,.45)}
+  .btn-navy.rb-on img{filter:drop-shadow(0 1px 1.5px rgba(17,15,57,.45))}
+  .rb-canvas{position:absolute;z-index:-1;border-radius:999px;pointer-events:none}
 
   /* Pastilles */
   .pill{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:999px;font-family:var(--f-display);font-weight:600;font-size:15px;line-height:1;letter-spacing:.9px;text-transform:uppercase;color:var(--grey-600);background:#fff}
@@ -172,7 +183,8 @@
   .photos-frame::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(129deg,#CDBFF7 5%,#F39CEC 105%);filter:blur(52px);opacity:.35}
   .photos-inner{display:flex;height:clamp(240px,42vw,428px);border:12px solid #fff;border-radius:24px;overflow:hidden;box-shadow:0 0 48px rgba(17,15,57,.02)}
   .photos-inner img{flex:1 1 0;min-width:0;width:50%;height:100%;object-fit:cover;object-position:50% 100%}
-  .contact{position:absolute;left:43.5%;top:325px;width:max-content;max-width:calc(100vw - 32px);transform:rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(0 0 17px rgba(17,15,57,.1))}
+  /* z-index : le bas de la carte déborde sur la section Pauline, qui sinon la recouvre et bloque le bouton Itinéraire. */
+  .contact{position:absolute;z-index:2;left:43.5%;top:325px;width:max-content;max-width:calc(100vw - 32px);transform:rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(0 0 17px rgba(17,15,57,.1))}
   .contact .head{display:flex;align-items:center;gap:14px}
   .contact .head img{width:60px;height:60px;border-radius:50%;object-fit:cover;flex:none}
   .contact .name{font-family:var(--f-display);font-weight:500;font-size:30px;line-height:33px;letter-spacing:-.3px}
@@ -647,5 +659,6 @@
 })();
 </script>
 <script src="../assets/resine.js" defer></script>
+<script src="../assets/bouton-resine.js" data-src="../assets/v2/hero.jpg" defer></script>
 </body>
 </html>
