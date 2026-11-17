@@ -191,7 +191,7 @@
   .photos-inner{display:flex;height:clamp(240px,42vw,428px);border:12px solid #fff;border-radius:24px;overflow:hidden;box-shadow:0 0 48px rgba(17,15,57,.02)}
   .photos-inner img{flex:1 1 0;min-width:0;width:50%;height:100%;object-fit:cover;object-position:50% 100%}
   /* z-index : le bas de la carte déborde sur la section Pauline, qui sinon la recouvre et bloque le bouton Itinéraire. */
-  .contact{position:absolute;z-index:2;left:43.5%;top:325px;width:350px;max-width:calc(100vw - 32px);transform:translateY(var(--py,0px)) rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(0 0 17px rgba(17,15,57,.1))}
+  .contact{position:absolute;z-index:2;left:43.5%;top:325px;width:350px;max-width:calc(100vw - 32px);transform:translate(var(--tx,0px),calc(var(--py,0px) + var(--ty,0px))) rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(var(--sx,0px) var(--sy,0px) 17px rgba(17,15,57,.1))}   /* --tx/--ty, --sx/--sy : carte repoussée par le curseur (bouton-aimant.js) */
   @keyframes drift{0%,100%{translate:0 0;rotate:0deg}30%{translate:5px -9px;rotate:.9deg}65%{translate:-4px -3px;rotate:-.6deg}}
   @media (prefers-reduced-motion:no-preference){.contact{animation:drift 9s ease-in-out infinite}}
   .contact .head{display:flex;align-items:center;gap:14px}
@@ -582,7 +582,7 @@
           <img src="../assets/v2/vitrine-rose.jpg" alt="La vitrine de Rose, Concept Store à Huy" width="768" height="1024" loading="lazy">
         </div>
       </div>
-      <div class="contact">
+      <div class="contact" data-aimant="repousse">
         <div class="head">
           <img src="../assets/v2/avatar-rose.jpg" alt="" width="180" height="180" loading="lazy">
           <div><p class="name">Rose <br>Concept Store</p></div>
