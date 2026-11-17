@@ -5,7 +5,9 @@
  * animé du héro, qui débordent sous les deux bandes. En fin de remplissage, la pâte se pose :
  * relief, grain, flou et déformation s'effacent ; la dernière image est la photo du héro.
  * Le bandeau et la bande défilante apparaissent alors en fondu, depuis le bas, par-dessus
- * l'image ; puis le voile s'efface (rien ne change à l'écran) et la navigation et le tampon entrent.
+ * l'image, pendant que la pâte se pose. À la fin, le voile s'efface (rien ne change à l'écran) et le
+ * fond animé du héro (resine.js, parti de la même photo nette) prend le relais sans pause ; la
+ * navigation et le tampon entrent.
  *
  * Utilisation : <div class="intro-veil"><canvas></canvas></div> au début du body, la classe
  * « arrive » posée sur <html> dans le head (pas « intro » : la section d'intro porte déjà ce nom),
@@ -24,7 +26,7 @@
   var CFG = window.introResine = {
     fill: 1.6,      // durée du remplissage, en secondes
     settle: 0.4,    // part de la fin du remplissage pendant laquelle la pâte se pose (0 à 1)
-    hold: 0.15,     // pause sur l'image finale avant de dévoiler la page
+    bands: 0.7,     // moment du remplissage où le bandeau et la bande défilante commencent à apparaître
     wait: 1.5,      // attente maximale de l'image avant de renoncer, en secondes
     tilt: 0.14,     // inclinaison du bord (en hauteurs de héro par largeur de héro)
     grain: 0.04,
@@ -43,8 +45,8 @@
   function finish() {
     if (finished) return;
     finished = true;
-    root.classList.add('arrive-go');                                           // bandes en fondu, par-dessus le voile
-    setTimeout(function () { root.classList.add('arrive-done'); }, 650);       // puis le voile s'efface
+    root.classList.add('arrive-go', 'arrive-done');   // bandes visibles, voile qui s'efface
+    if (window.resineGo) window.resineGo();             // le fond animé du héro prend le relais tout de suite
     setTimeout(function () {
       root.classList.remove('arrive', 'arrive-go', 'arrive-done');
       if (veil && veil.parentNode) veil.parentNode.removeChild(veil);
@@ -175,12 +177,13 @@
   function run() {
     t0 = performance.now();
     // Chien de garde : sur un appareil trop lent pour suivre, la page s'affiche quand même.
-    setTimeout(finish, (CFG.fill + CFG.hold) * 1000 + 900);
+    setTimeout(finish, CFG.fill * 1000 + 900);
     (function frame(now) {
       var p = Math.max(0, Math.min(1, (now - t0) / 1000 / CFG.fill));
       draw(now, p);
+      if (p >= CFG.bands) root.classList.add('arrive-go');   // bandes en fondu pendant que la pâte se pose
       if (p < 1) { requestAnimationFrame(frame); return; }
-      setTimeout(finish, CFG.hold * 1000);
+      finish();                                            // pas de pause : relais immédiat
     })(t0);
   }
 

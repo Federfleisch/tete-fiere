@@ -163,7 +163,11 @@
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     photoAspect = img.width / img.height;
     resize();
-    for (var i = 0; i < SETTINGS.warmup; i++) { flowTime += SETTINGS.flowSpeed / 60; simStep(-10, -10, 0, 0); }
+    // Arrivée de l'aperçu (intro-resine.js) en cours : pas d'avance, la 1re image est la photo nette,
+    // identique à la fin de l'arrivée, et la boucle attend window.resineGo() pour démarrer.
+    var root = document.documentElement;
+    held = root.classList.contains('arrive') && !root.classList.contains('arrive-done');
+    if (!held) for (var i = 0; i < SETTINGS.warmup; i++) { flowTime += SETTINGS.flowSpeed / 60; simStep(-10, -10, 0, 0); }
     render();
     canvas.classList.add('is-ready');   // fondu d'apparition par-dessus le fond CSS identique
     window.addEventListener('pointermove', onMove, { passive: true });
@@ -239,7 +243,10 @@
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
+  var held = false;
+  window.resineGo = function () { if (held) { held = false; if (SETTINGS.flow > 0) wake(); } };
   function wake() {
+    if (held) return;
     lastInput = performance.now();
     if (!running) { running = true; requestAnimationFrame(frame); }
   }

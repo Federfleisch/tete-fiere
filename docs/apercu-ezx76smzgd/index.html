@@ -255,7 +255,6 @@
   html.arrive .intro-veil{display:block;position:fixed;inset:0;z-index:200;background:var(--navy);transition:opacity .5s ease;animation:veil-safety 0s linear 5s forwards}
   html.arrive .intro-veil canvas{display:block;width:100%;height:100%}
   html.arrive-done .intro-veil{opacity:0;pointer-events:none}
-  html.arrive .hero canvas.resine{opacity:0!important}   /* le héro reste sur la photo statique pendant l'arrivée */
   @keyframes veil-safety{to{opacity:0;visibility:hidden}}
   html.arrive .topbar,html.arrive .slider{position:relative;z-index:201;opacity:0;translate:0 18px}   /* au-dessus du voile */
   html.arrive .nav{opacity:0;translate:0 40px}
@@ -658,7 +657,7 @@
   document.documentElement.classList.add('js');
   setTimeout(function () {   // filet de sécurité de l'arrivée (assets/intro-resine.js)
     var r = document.documentElement;
-    if (r.classList.contains('arrive') && !r.classList.contains('arrive-done')) r.classList.add('arrive-go', 'arrive-done');
+    if (r.classList.contains('arrive') && !r.classList.contains('arrive-done')) { r.classList.add('arrive-go', 'arrive-done'); if (window.resineGo) window.resineGo(); }
   }, 5000);
 
   /* Apparition au défilement */
