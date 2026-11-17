@@ -1,32 +1,37 @@
 /*
- * Bouton résine : au survol, le bouton se remplit de résine de bas en haut, puis se vide
- * quand la souris le quitte.
+ * Bouton résine : au survol, le bouton se remplit d'une pâte de résine épaisse, de bas en
+ * haut. Quand la souris le quitte, sa couleur de fond remonte à son tour depuis le bas et
+ * recouvre la résine.
  *
- * La matière est la photo du héro (hero.jpg), lue à travers un bruit lent : on garde les
- * teintes de la résine, sans mélange de couleurs. Un grain fin donne l'aspect poudreux, un
- * ombrage léger donne du volume, le bord du liquide est bosselé et ondule.
+ * Couleurs : la photo du héro (hero.jpg), lue très floue (on garde les grandes zones rose et
+ * bleu, sans les veines ni les bulles de la photo). Matière : relief de gros plis arrondis qui
+ * remontent lentement, éclairé du haut à gauche, creux plus sombres, grain poudreux.
  *
  * Utilisation : <script src="../assets/bouton-resine.js" data-src="../assets/v2/hero.jpg" defer>
  * Boutons concernés : .btn-navy (Primary) et .btn-ghost (Secondary).
- * - Primary : résine franche ; le texte passe du blanc au bleu nuit sous le niveau du liquide.
- * - Secondary : résine plus pâle (mêlée de blanc), contour rose, texte bleu nuit inchangé.
+ * - Primary : résine franche ; le texte passe du blanc au bleu nuit dans la résine ;
+ *   à la sortie, le bleu nuit remonte depuis le bas.
+ * - Secondary : résine plus pâle (mêlée de blanc), contour rose, texte bleu nuit inchangé ;
+ *   à la sortie, le fond clair remonte depuis le bas.
  *
  * Un seul canvas WebGL 2 pour toute la page, posé dans le bouton survolé.
  * Rien ne change sans souris (tactile), sans WebGL 2 ou avec « réduire les animations » :
  * le survol CSS d'origine reste en place.
- * Réglages à chaud : window.boutonResine (fill, drain, grain, wave, lighten, lightenGhost).
+ * Réglages à chaud : window.boutonResine.
  */
 (function () {
   'use strict';
 
   var CFG = window.boutonResine = {
-    fill: 3.6,          // durée du remplissage, en secondes (plein à l'œil vers 2,5 s, puis se pose)
-    drain: 0.6,         // durée de la descente, en secondes
-    grain: 0.08,        // force du grain poudreux
-    wave: 1,            // amplitude des vagues du bord (0 = bord plat)
-    lighten: 0.18,      // Primary : part de blanc mêlée à la résine (lisibilité du texte bleu nuit)
+    fill: 2.8,          // durée du remplissage, en secondes (plein à l'œil vers 1,9 s, puis se pose)
+    drain: 0.6,         // durée de la remontée du fond à la sortie, en secondes
+    grain: 0.07,        // force du grain poudreux
+    wave: 1,            // amplitude de la vague du bord (0 = bord plat)
+    relief: 1,          // épaisseur de la pâte (force des plis et des ombres)
+    blur: 3.5,          // flou de la photo (plus grand = zones de couleur plus larges, 0 = photo nette)
+    lighten: 0.14,      // Primary : part de blanc mêlée à la résine (lisibilité du texte bleu nuit)
     lightenGhost: 0.45, // Secondary : résine plus pâle
-    zoom: 0.24          // hauteur de la fenêtre lue dans la photo (plus petit = plus zoomé)
+    zoom: 0.3           // hauteur de la fenêtre lue dans la photo (plus petit = plus zoomé)
   };
 
   var mq = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
@@ -36,15 +41,19 @@
   var SRC = (script && script.getAttribute('data-src')) || 'assets/v2/hero.jpg';
   var SELECTOR = '.btn-navy, .btn-ghost';
 
-  /* Bord du liquide : même fonction en JS (découpe du texte) et en GLSL (rendu).
-     x de 0 à 1 sur la largeur, résultat en fraction de la hauteur depuis le bas. */
+  /* Bords : même fonctions en JS (découpe du texte) et en GLSL (rendu).
+     x de 0 à 1 sur la largeur, résultat en fraction de la hauteur depuis le bas.
+     surface : bord de la résine, une vague longue et douce plus une bosse qui s'efface en montant.
+     cover : bord du fond qui remonte à la sortie. */
   function surface(x, s) {
     var X = x * s.aspect;
-    var w = s.amp * (0.5 * Math.sin(X * 2.6 + s.t * 1.9) +
-                     0.3 * Math.sin(X * 5.3 - s.t * 2.7 + 1.3) +
-                     0.2 * Math.sin(X * 9.1 + s.t * 3.4 + 0.7));
-    var d = (x - s.bumpC) * s.aspect / 0.9;
+    var w = s.amp * (0.75 * Math.sin(X * 1.5 + s.t * 1.5) + 0.25 * Math.sin(X * 2.9 - s.t * 1.9 + 1.3));
+    var d = (x - s.bumpC) * s.aspect / 1.6;
     return s.level + w + s.bumpA * Math.exp(-d * d);
+  }
+  function cover(x, s) {
+    var X = x * s.aspect;
+    return s.cov + s.amp * 0.6 * Math.sin(X * 1.7 - s.t * 1.4 + 2.0);
   }
 
   var VS = '#version 300 es\n' +
@@ -56,41 +65,49 @@
     'uniform sampler2D tex;\n' +
     'uniform vec2 res;\n' +        // taille du canvas en pixels
     'uniform vec4 win;\n' +        // fenêtre lue dans la photo : x0, y0, largeur, hauteur (uv)
-    'uniform float t, level, amp, bumpA, bumpC, aspect, grain, lighten, fill;\n' +
+    'uniform float t, level, amp, bumpA, bumpC, cov, aspect, grain, lighten, fill, relief, blur;\n' +
     'uniform vec3 mixCol;\n' +
-    'uniform vec4 bg;\n' +           // fond hors du liquide (bleu nuit pour le Primary, transparent sinon)
+    'uniform vec4 bg;\n' +         // fond hors de la résine (bleu nuit pour le Primary, transparent sinon)
     'in vec2 v; out vec4 o;\n' +
     'float hash(vec2 q){ q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }\n' +
     'float noise(vec2 q){ vec2 i = floor(q), f = fract(q); vec2 u = f * f * (3.0 - 2.0 * f);\n' +
     '  return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }\n' +
-    'float fbm(vec2 q){ float a = 0.5, s = 0.0; for (int k = 0; k < 4; k++){ s += a * noise(q); q = q * 2.03 + 17.1; a *= 0.5; } return s; }\n' +
+    'float fbm(vec2 q){ float a = 0.5, s = 0.0; for (int k = 0; k < 3; k++){ s += a * noise(q); q = q * 2.07 + 17.1; a *= 0.45; } return s / 0.8; }\n' +
     'float surf(float x){ float X = x * aspect;\n' +
-    '  float w = amp * (0.5 * sin(X * 2.6 + t * 1.9) + 0.3 * sin(X * 5.3 - t * 2.7 + 1.3) + 0.2 * sin(X * 9.1 + t * 3.4 + 0.7));\n' +
-    '  float d = (x - bumpC) * aspect / 0.9; return level + w + bumpA * exp(-d * d); }\n' +
+    '  float w = amp * (0.75 * sin(X * 1.5 + t * 1.5) + 0.25 * sin(X * 2.9 - t * 1.9 + 1.3));\n' +
+    '  float d = (x - bumpC) * aspect / 1.6; return level + w + bumpA * exp(-d * d); }\n' +
+    'float covr(float x){ return cov + amp * 0.6 * sin(x * aspect * 1.7 - t * 1.4 + 2.0); }\n' +
+    // Relief de la pâte : gros plis qui remontent lentement avec le remplissage.
+    'float H(vec2 P){ vec2 q = vec2(fbm(P * 0.8 + vec2(0.0, -t * 0.18)), fbm(P * 0.8 + vec2(4.1, 2.7 - t * 0.13)));\n' +
+    '  return fbm(P * 1.25 + 2.4 * q + vec2(0.0, -fill * 0.9)); }\n' +
     'void main(){\n' +
     '  float px = 1.0 / res.y;\n' +
-    '  float depth = surf(v.x) - v.y;\n' +                               // > 0 sous la surface
-    '  float a = smoothstep(-0.8 * px, 0.8 * px, depth);\n' +
+    '  float depth = surf(v.x) - v.y;\n' +                       // > 0 sous le bord de la résine
+    '  float up = v.y - covr(v.x);\n' +                          // > 0 au-dessus du fond qui remonte
+    '  float a = smoothstep(-0.8 * px, 0.8 * px, depth) * smoothstep(-0.8 * px, 0.8 * px, up);\n' +
     '  if (a <= 0.0) { o = bg; return; }\n' +
     '  vec2 P = vec2(v.x * aspect, v.y);\n' +
-    // Matière épaisse : la photo est lue à travers deux couches de bruit imbriquées qui dérivent
-    // lentement (plis, volutes), et monte un peu avec le niveau (le liquide pousse vers le haut).
-    '  vec2 q = vec2(fbm(P * 1.3 + vec2(0.0, -t * 0.14)), fbm(P * 1.3 + vec2(5.2, 1.3 + t * 0.1)));\n' +
-    '  vec2 r = vec2(fbm(P * 1.7 + 4.0 * q + vec2(1.7, 9.2) + t * 0.06), fbm(P * 1.7 + 4.0 * q + vec2(8.3, 2.8) - t * 0.05));\n' +
-    '  vec2 uv = vec2(v.x, 1.0 - v.y + fill * 0.3) + (r - 0.5) * vec2(0.7 / aspect, 0.9);\n' +
-    '  vec3 c = texture(tex, win.xy + win.zw * uv).rgb;\n' +
-    // Volume : relief tiré du même bruit, éclairé du haut à gauche ; creux des plis plus sombres.
-    '  float h0 = fbm(P * 2.4 + 3.0 * r);\n' +
-    '  float hx = fbm((P + vec2(0.015, 0.0)) * 2.4 + 3.0 * r);\n' +
-    '  float hy = fbm((P + vec2(0.0, 0.015)) * 2.4 + 3.0 * r);\n' +
-    '  vec3 n = normalize(vec3((h0 - hx) * 9.0, (h0 - hy) * 9.0, 1.0));\n' +
-    '  float light = dot(n, normalize(vec3(-0.5, 0.6, 0.8)));\n' +
-    '  c *= 0.74 + 0.4 * light;\n' +
-    '  c *= mix(0.84, 1.08, smoothstep(0.2, 0.8, h0));\n' +
-    // Bord : bourrelet plus sombre juste sous la surface, liseré clair sur le bord.
+    '  float h0 = H(P);\n' +
+    '  float hx = H(P + vec2(0.03, 0.0));\n' +
+    '  float hy = H(P + vec2(0.0, 0.03));\n' +
+    // Couleur : photo très floue, entraînée le long des plis.
+    '  vec2 uv = vec2(v.x, 1.0 - v.y + fill * 0.3) + (vec2(h0, hx) - 0.5) * vec2(0.5 / aspect, 0.8);\n' +
+    '  vec3 c = textureLod(tex, win.xy + win.zw * uv, blur).rgb;\n' +
+    // Volume : éclairage du haut à gauche, creux des plis sombres, sommets poudrés.
+    '  vec3 n = normalize(vec3((h0 - hx) * 7.0 * relief, (h0 - hy) * 7.0 * relief, 1.0));\n' +
+    '  float light = dot(n, normalize(vec3(-0.55, 0.65, 0.75)));\n' +
+    // Les ombres foncent en gardant la teinte (couleur au carré), sans griser.
+    '  float sh = clamp((0.62 + 0.5 * light) * mix(0.72, 1.08, smoothstep(0.2, 0.75, h0)), 0.0, 1.2);\n' +
+    '  sh = mix(1.0, sh, clamp(relief, 0.0, 1.5));\n' +
+    '  vec3 deep = c * c * 1.05;\n' +
+    '  c = sh < 1.0 ? mix(deep, c, smoothstep(0.55, 1.0, sh)) : c * sh;\n' +
+    '  c = mix(c, vec3(1.0), 0.22 * smoothstep(0.62, 0.92, h0) * relief);\n' +
+    // Bord : la pâte est bombée, plus sombre juste sous le bord, avec un liseré clair.
     '  float dpx = depth / px;\n' +
-    '  c *= 0.84 + 0.16 * smoothstep(0.0, 10.0, dpx);\n' +
-    '  c += 0.16 * (1.0 - smoothstep(0.0, 2.0, dpx));\n' +
+    '  c = mix(c * c * 1.05, c, 0.45 + 0.55 * smoothstep(0.0, 14.0, dpx));\n' +
+    '  c += 0.14 * (1.0 - smoothstep(0.0, 2.5, dpx));\n' +
+    // Ombre portée par le fond qui remonte.
+    '  c *= 0.8 + 0.2 * smoothstep(0.0, 8.0, up / px);\n' +
     '  c = mix(c, mixCol, lighten);\n' +
     // Grain poudreux, renouvelé 12 fois par seconde.
     '  c += (hash(gl_FragCoord.xy + floor(t * 12.0) * 7.13) - 0.5) * grain;\n' +
@@ -122,7 +139,7 @@
     var loc = gl.getAttribLocation(prog, 'p');
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    ['tex', 'res', 'win', 't', 'level', 'amp', 'bumpA', 'bumpC', 'aspect', 'grain', 'lighten', 'fill', 'mixCol', 'bg']
+    ['tex', 'res', 'win', 't', 'level', 'amp', 'bumpA', 'bumpC', 'cov', 'aspect', 'grain', 'lighten', 'fill', 'relief', 'blur', 'mixCol', 'bg']
       .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
     canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); disable(); });
     return true;
@@ -149,20 +166,23 @@
     img.src = SRC;
   }
 
-  /* État du bouton qui porte le canvas. p : avancement de 0 (vide) à 1 (plein). */
+  /* État du bouton qui porte le canvas.
+     p : remplissage de 0 (vide) à 1 (plein) ; c : remontée du fond à la sortie, de 0 à 1. */
   var cur = null, raf = 0, last = 0;
 
   function ease(p) { return 1 - Math.pow(1 - p, 1.6); }
+  function easeInOut(p) { return p * p * (3 - 2 * p); }
 
   function state(b, now) {
     var p = b.p;
     return {
       aspect: b.w / b.h,
       t: (now - b.t0) / 1000,
-      level: -0.45 + 1.9 * ease(p),
-      amp: 0.1 * CFG.wave,
-      bumpA: 0.35 * (1 - p) * (1 - p),
-      bumpC: b.bumpC
+      level: -0.4 + 1.75 * ease(p),
+      amp: 0.06 * CFG.wave,
+      bumpA: 0.3 * (1 - p) * (1 - p),
+      bumpC: b.bumpC,
+      cov: -0.15 + 1.35 * easeInOut(b.c)
     };
   }
 
@@ -195,7 +215,7 @@
     }
     btn.classList.add('rb-on');
     cur = {
-      btn: btn, ghost: ghost, label: label, w: w, h: h, p: 0, hover: true,
+      btn: btn, ghost: ghost, label: label, w: w, h: h, p: 0, c: 0, hover: true,
       t0: performance.now() - Math.random() * 20000,
       bumpC: 0.2 + Math.random() * 0.6,
       win: [Math.random() * (1 - ww), Math.random() * (1 - wh), ww, wh]
@@ -218,9 +238,13 @@
     raf = 0;
     if (!cur) return;
     var dt = Math.min((now - last) / 1000, 0.05); last = now;
-    if (cur.hover) cur.p = Math.min(1, cur.p + dt / CFG.fill);
-    else cur.p = Math.max(0, cur.p - dt / CFG.drain);
-    if (cur.p <= 0 && !cur.hover) { release(); return; }
+    if (cur.hover) {
+      cur.p = Math.min(1, cur.p + dt / CFG.fill);
+      cur.c = Math.max(0, cur.c - dt / CFG.drain); // retour pendant la sortie : le fond redescend
+    } else {
+      cur.c = Math.min(1, cur.c + dt / CFG.drain);
+      if (cur.c >= 1) { release(); return; }
+    }
     draw(now);
     raf = requestAnimationFrame(frame);
   }
@@ -232,6 +256,7 @@
     gl.uniform4f(U.win, cur.win[0], cur.win[1], cur.win[2], cur.win[3]);
     gl.uniform1f(U.t, s.t); gl.uniform1f(U.level, s.level); gl.uniform1f(U.amp, s.amp);
     gl.uniform1f(U.bumpA, s.bumpA); gl.uniform1f(U.bumpC, s.bumpC); gl.uniform1f(U.aspect, s.aspect);
+    gl.uniform1f(U.cov, s.cov); gl.uniform1f(U.relief, CFG.relief); gl.uniform1f(U.blur, CFG.blur);
     gl.uniform1f(U.grain, CFG.grain); gl.uniform1f(U.fill, ease(cur.p));
     gl.uniform1f(U.lighten, cur.ghost ? CFG.lightenGhost : CFG.lighten);
     gl.uniform3f(U.mixCol, 0.984, 0.976, 1.0); // papier #FBF9FF
@@ -240,11 +265,15 @@
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     if (cur.label) {
-      // Texte bleu nuit découpé selon le bord du liquide (même fonction que le shader).
-      var pts = ['0% 100%', '100% 100%'];
-      for (var i = 24; i >= 0; i--) {
-        var x = i / 24, y = surface(x, s);
-        pts.push((x * 100).toFixed(2) + '% ' + ((1 - y) * 100).toFixed(2) + '%');
+      // Texte bleu nuit découpé selon la résine : entre le fond qui remonte et le bord du liquide.
+      var pts = [], N = 24, i, x, top;
+      for (i = 0; i <= N; i++) {
+        x = i / N; top = surface(x, s);
+        pts.push((x * 100).toFixed(2) + '% ' + ((1 - Math.min(cover(x, s), top)) * 100).toFixed(2) + '%');
+      }
+      for (i = N; i >= 0; i--) {
+        x = i / N;
+        pts.push((x * 100).toFixed(2) + '% ' + ((1 - surface(x, s)) * 100).toFixed(2) + '%');
       }
       cur.label.style.clipPath = 'polygon(' + pts.join(',') + ')';
     }
