@@ -20,16 +20,17 @@
   'use strict';
 
   var CFG = window.boutonResine = {
-    // Valeurs choisies par Denis sur la page d'essai (17 novembre 2026), sauf tilt et stir.
+    // Valeurs choisies par Denis sur la page d'essai (17 novembre 2026).
     fill: 1.5,          // durée du remplissage, en secondes (plein à l'œil vers 70 %, puis se pose)
     drain: 0.6,         // durée de la remontée du bleu nuit à la sortie, en secondes
-    grain: 0.07,        // force du grain poudreux
+    grain: 0.05,        // force du grain poudreux
     wave: 2,            // hauteur de la vague des bords (0 = bord plat)
-    tilt: 1,            // balancement des bords, qui penchent d'un côté puis de l'autre (0 = horizontal)
+    tilt: 2,            // balancement des bords, qui penchent d'un côté puis de l'autre (0 = horizontal)
     relief: 1.5,        // épaisseur de la pâte (force des plis et des ombres)
     blur: 0.9,          // flou de la photo (plus grand = zones de couleur plus larges, 0 = photo nette)
     lighten: 0.14,      // part de blanc mêlée à la résine
-    stir: 1,            // réaction de la pâte au curseur (0 = aucune)
+    darken: 0.02,       // part de noir mêlée à la résine (lisibilité du texte blanc)
+    stir: 0.6,          // réaction de la pâte au curseur (0 = aucune)
     zoom: 0.5           // hauteur de la fenêtre lue dans la photo (plus petit = plus zoomé)
   };
 
@@ -52,7 +53,7 @@
     'uniform sampler2D tex;\n' +
     'uniform vec2 res;\n' +        // taille du canvas en pixels
     'uniform vec4 win;\n' +        // fenêtre lue dans la photo : x0, y0, largeur, hauteur (uv)
-    'uniform float t, level, wave, tilt, bumpA, bumpC, cov, aspect, grain, lighten, fill, relief, blur;\n' +
+    'uniform float t, level, wave, tilt, bumpA, bumpC, cov, aspect, grain, lighten, darken, fill, relief, blur;\n' +
     'uniform vec2 mp, mv;\n' +     // curseur (en P) et sa vitesse lissée (P par seconde)
     'uniform float mOn;\n' +       // présence du curseur, de 0 à 1
     'uniform vec3 mixCol;\n' +
@@ -106,7 +107,7 @@
     '  c += 0.14 * (1.0 - smoothstep(0.0, 2.5, dpx));\n' +
     // Ombre portée par le bleu nuit qui remonte.
     '  c *= 0.8 + 0.2 * smoothstep(0.0, 8.0, up / px);\n' +
-    '  c = mix(c, mixCol, lighten);\n' +
+    '  c = mix(c, mixCol, lighten) * (1.0 - darken);\n' +
     // Grain poudreux, renouvelé 12 fois par seconde.
     '  c += (hash(gl_FragCoord.xy + floor(t * 12.0) * 7.13) - 0.5) * grain;\n' +
     '  o = mix(bg, vec4(clamp(c, 0.0, 1.0), 1.0), a);\n' +
@@ -137,7 +138,7 @@
     var loc = gl.getAttribLocation(prog, 'p');
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    ['tex', 'res', 'win', 't', 'level', 'wave', 'tilt', 'bumpA', 'bumpC', 'cov', 'aspect', 'grain', 'lighten',
+    ['tex', 'res', 'win', 't', 'level', 'wave', 'tilt', 'bumpA', 'bumpC', 'cov', 'aspect', 'grain', 'lighten', 'darken',
      'fill', 'relief', 'blur', 'mp', 'mv', 'mOn', 'mixCol', 'bg']
       .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
     canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); disable(); });
@@ -255,7 +256,7 @@
     gl.uniform1f(U.aspect, asp);
     gl.uniform1f(U.grain, CFG.grain); gl.uniform1f(U.fill, ease(p));
     gl.uniform1f(U.relief, CFG.relief); gl.uniform1f(U.blur, CFG.blur);
-    gl.uniform1f(U.lighten, CFG.lighten);
+    gl.uniform1f(U.lighten, CFG.lighten); gl.uniform1f(U.darken, CFG.darken);
     gl.uniform2f(U.mp, cur.mx, cur.my);
     gl.uniform2f(U.mv, cur.vx * s, cur.vy * s);
     gl.uniform1f(U.mOn, cur.on * Math.min(s, 1.5));
