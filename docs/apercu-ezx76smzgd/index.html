@@ -300,6 +300,11 @@
   @media (prefers-reduced-motion:no-preference){
     .js .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
     .js .rv.in{opacity:1;transform:none}
+    /* Montée depuis le bas, plus ample : bloc de la boutique (puis ses cartes, l'une après l'autre) et fin de page */
+    .js .rise{opacity:0;translate:0 var(--rise,120px);transition:opacity .9s ease var(--d,0s),translate 1.3s cubic-bezier(.2,.8,.2,1) var(--d,0s)}
+    .js .rise.in{opacity:1;translate:0 0}
+    .js .shop .product{opacity:0;translate:0 70px;transition:opacity .7s ease,translate 1s cubic-bezier(.2,.8,.2,1)}
+    .js .shop.in .product{opacity:1;translate:0 0}
   }
 
   /* Tablette et mobile */
@@ -446,7 +451,7 @@
   </div>
 
 
-  <section class="shop" id="boutique" aria-labelledby="shop-title">
+  <section class="shop rise" id="boutique" aria-labelledby="shop-title">
     <div class="shop-head rv">
       <span class="pill">Créations</span>
       <h2 class="title-60" id="shop-title">Nouveautés de l'atelier</h2>
@@ -623,8 +628,8 @@
       <span class="bubble big float" style="width:clamp(110px,10vw,166px);height:clamp(110px,10vw,166px);right:15%;bottom:calc(var(--foot-h,277px) - 26px);opacity:.9;--v:820px;--dur:7.2s;--delay:-5s;--float:-14px"></span>
     </div>
     <section class="outro" id="contact" aria-labelledby="outro-title">
-      <h2 class="title-60 rv" id="outro-title">Une demande de bijou&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
-      <div class="outro-actions rv">
+      <h2 class="title-60 rise" style="--rise:90px" id="outro-title">Une demande de bijou&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
+      <div class="outro-actions rise" style="--rise:70px;--d:.18s">
         <a class="btn btn-navy btn-lg" href="mailto:info@tetefiere.be" target="_blank" rel="noopener">Me contacter</a>
         <a class="btn btn-white btn-lg" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
         <a class="btn btn-white btn-lg" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
@@ -669,7 +674,11 @@
   }, 5000);
 
   /* Apparition au défilement */
-  var els = document.querySelectorAll('.rv');
+  var els = document.querySelectorAll('.rv, .rise');
+  // Cartes de la boutique : elles montent l'une après l'autre, une fois le bloc arrivé
+  [].forEach.call(document.querySelectorAll('.shop .product'), function (el, i) {
+    el.style.transitionDelay = (0.25 + Math.min(i, 5) * 0.09).toFixed(2) + 's';
+  });
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });

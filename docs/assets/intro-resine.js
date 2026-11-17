@@ -3,6 +3,7 @@
  * 1. Écran bleu nuit ; la vague de résine monte tout de suite, sans attendre la photo : elle part
  *    d'un aperçu minuscule intégré ci-dessous, puis passe en fondu à la photo en pleine définition
  *    (main-background.jpg) dès qu'elle est chargée.
+ *    Le bord ondule nettement (houle), avec une courbe plus forte sur mobile.
  * 2. Un peu avant que la vague n'atteigne le haut (CFG.enter), les éléments arrivent par-dessus :
  *    bandeau et bande défilante (avec leur texte), navigation, logo, tampon (classe arrive-go).
  * 3. La pâte se pose : relief, grain, flou et déformation s'effacent ; la dernière image est la photo
@@ -27,7 +28,11 @@
     settle: 0.4,    // part de la fin de la montée pendant laquelle la pâte se pose (0 à 1)
     enter: 0.72,    // moment de la montée où les éléments arrivent
     hiWait: 2.5,    // attente maximale de la photo en pleine définition, une fois la montée finie (s)
-    tilt: 0.14,     // inclinaison du bord
+    tilt: 0.1,      // inclinaison du bord
+    wave: 0.07,     // hauteur de la houle (part de la hauteur d'écran), écran large
+    waves: 1.1,     // nombre d'ondulations sur la largeur, écran large
+    waveM: 0.085,   // mêmes réglages sur mobile (écran plus haut que large) : courbe plus marquée
+    wavesM: 0.75,
     grain: 0.04,
     relief: 1.2,
     blur: 1.6,      // flou de la photo pendant la montée (niveau de mipmap), 0 à la fin
@@ -68,7 +73,7 @@
     'uniform sampler2D tex, texHi;\n' +
     'uniform vec2 res;\n' +
     'uniform vec2 band;\n' +       // bas et haut du premier écran, en fraction de la hauteur d'écran (depuis le bas)
-    'uniform float t, level, aspect, heroAsp, imgAsp, grain, relief, blur, fill, settle, tilt, hi;\n' +
+    'uniform float t, level, aspect, heroAsp, imgAsp, grain, relief, blur, fill, settle, tilt, hi, wave, waves;\n' +
     'in vec2 v; out vec4 o;\n' +
     'float hash(vec2 q){ q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }\n' +
     'float noise(vec2 q){ vec2 i = floor(q), f = fract(q); vec2 u = f * f * (3.0 - 2.0 * f);\n' +
@@ -76,8 +81,9 @@
     'float fbm(vec2 q){ float a = 0.5, s = 0.0; for (int k = 0; k < 3; k++){ s += a * noise(q); q = q * 2.07 + 17.1; a *= 0.45; } return s / 0.8; }\n' +
     'float surf(float x){ float X = (x - 0.5) * aspect;\n' +
     '  float k = tilt + 0.05 * sin(t * 1.2) + 0.025 * sin(t * 2.3 + 1.0);\n' +
-    '  float w = 0.7 * sin(X * 2.4 + t * 1.7) + 0.3 * sin(X * 5.3 - t * 2.1 + 1.3);\n' +
-    '  return level + k * X + 0.03 * w; }\n' +
+    '  float u = (x - 0.5) * 6.2832 * waves;\n' +      // ondulations comptées sur la largeur : même houle quel que soit l'écran
+    '  float w = 0.72 * sin(u + t * 2.2) + 0.28 * sin(u * 2.3 - t * 2.9 + 1.3);\n' +
+    '  return level + k * X + wave * w; }\n' +
     'float H(vec2 P){ vec2 q = vec2(fbm(P * 1.5 + vec2(0.0, -t * 0.22)), fbm(P * 1.5 + vec2(4.1, 2.7 - t * 0.17)));\n' +
     '  return fbm(P * 2.2 + 2.4 * q + vec2(0.0, -fill * 1.2)); }\n' +
     'vec2 cover(vec2 h){ vec2 uv = h;\n' +
@@ -134,7 +140,7 @@
     var loc = gl.getAttribLocation(prog, 'p');
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    ['tex', 'texHi', 'res', 'band', 't', 'level', 'aspect', 'heroAsp', 'imgAsp', 'grain', 'relief', 'blur', 'fill', 'settle', 'tilt', 'hi']
+    ['tex', 'texHi', 'res', 'band', 't', 'level', 'aspect', 'heroAsp', 'imgAsp', 'grain', 'relief', 'blur', 'fill', 'settle', 'tilt', 'hi', 'wave', 'waves']
       .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
     gl.uniform1i(U.tex, 0);
     gl.uniform1i(U.texHi, 1);
@@ -171,7 +177,8 @@
     var r = hero.getBoundingClientRect(), vh = window.innerHeight;
     var fTop = r.top - (topbar ? topbar.offsetHeight : 0), fBottom = r.bottom + (slider ? slider.offsetHeight : 0);
     var asp = window.innerWidth / vh, heroAsp = window.innerWidth / Math.max(1, fBottom - fTop);
-    var reach = (CFG.tilt + 0.075) * asp / 2 + 0.03 + 0.01;
+    var tall = asp < 0.9, wave = tall ? CFG.waveM : CFG.wave;
+    var reach = (CFG.tilt + 0.075) * asp / 2 + wave + 0.01;   // la vague part entièrement sous l'écran et finit au-dessus
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.uniform2f(U.res, canvas.width, canvas.height);
     gl.uniform2f(U.band, 1 - fBottom / vh, 1 - fTop / vh);
@@ -180,6 +187,8 @@
     gl.uniform1f(U.fill, ease(p));
     gl.uniform1f(U.settle, p >= 1 ? 1 : smooth(1 - CFG.settle, 1, p));
     gl.uniform1f(U.tilt, CFG.tilt);
+    gl.uniform1f(U.wave, wave);
+    gl.uniform1f(U.waves, tall ? CFG.wavesM : CFG.waves);
     gl.uniform1f(U.aspect, asp);
     gl.uniform1f(U.heroAsp, heroAsp);
     gl.uniform1f(U.imgAsp, imgAsp);
