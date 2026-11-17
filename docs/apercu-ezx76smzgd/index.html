@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <title>Tête Fière | Boucles d'oreilles artisanales</title>
 <meta name="description" content="Créées avec le cœur, portées avec fierté. Boucles d'oreilles artisanales en résine, faites à la main.">
-<link rel="preload" as="image" href="../assets/v2/hero.jpg">
+<link rel="preload" as="image" href="../assets/main-background.jpg">
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('arrive')}catch(e){}</script>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/fredoka-latin-600-normal.woff2" crossorigin>
 <style>
@@ -91,7 +91,7 @@
   :root{--topbar-h:42px;--slider-h:136px}
   @media (max-width:900px){:root{--slider-h:93px}}
   @media (max-width:600px){:root{--topbar-h:90px;--slider-h:73px}}
-  .hero{position:relative;height:calc(100vh - var(--topbar-h) - var(--slider-h));height:calc(100svh - var(--topbar-h) - var(--slider-h));min-height:160px;container-type:size;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#9CC8F3 url('../assets/v2/hero.jpg') center/cover no-repeat}
+  .hero{position:relative;height:calc(100vh - var(--topbar-h) - var(--slider-h));height:calc(100svh - var(--topbar-h) - var(--slider-h));min-height:160px;container-type:size;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#9CC8F3 url('../assets/main-background.jpg') center/cover no-repeat}
   .hero h1{position:relative;z-index:1;width:min(624px,80vw);width:min(624px,80vw,130cqh);margin:0}
   .hero h1 img{width:100%;height:auto}
   /* Écran bas (téléphone en paysage) : le logo se place au-dessus de la pilule de navigation */
@@ -373,7 +373,7 @@
 </div>
 
 <header class="hero" id="top">
-  <canvas class="resine" data-src="../assets/v2/hero.jpg" data-intensite="0.8" aria-hidden="true"></canvas>
+  <canvas class="resine" data-src="../assets/main-background.jpg" data-intensite="0.8" aria-hidden="true"></canvas>
   <h1><img src="../assets/v2/logo-hero.svg" alt="Tête Fière !" width="624" height="328"></h1>
   <div class="stamp float" style="--dur:6.5s;--delay:-1.5s;--float:-8px" aria-hidden="true">
     <img class="disc" src="../assets/v2/tampon.svg" alt="" width="167" height="167">
@@ -394,10 +394,10 @@
 <div class="slider" role="region" aria-label="Bandeau">
   <p class="sr">Un bijou n'est pas un objet, c'est un souvenir que l'on porte. Fait avec le cœur, porté avec fierté.</p>
   <div class="slider-track" aria-hidden="true">
-    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte.</span><span class="dot"></span>
-    <span>Fait avec le cœur, porté avec fierté.</span><span class="dot"></span>
-    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte.</span><span class="dot"></span>
-    <span>Fait avec le cœur, porté avec fierté.</span><span class="dot"></span>
+    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte</span><span class="dot"></span>
+    <span>Fait avec le cœur, porté avec fierté</span><span class="dot"></span>
+    <span>Un bijou n'est pas un objet, c'est un souvenir que l'on porte</span><span class="dot"></span>
+    <span>Fait avec le cœur, porté avec fierté</span><span class="dot"></span>
   </div>
 </div>
 
@@ -761,7 +761,10 @@
   else window.addEventListener('resize', measureFold);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureFold);
 
-  /* Bulles : dérive lente et continue + parallaxe au défilement (les grosses bulles, plus proches, bougent plus) */
+  /* Bulles : dérive lente et continue + parallaxe au défilement (les grosses bulles, plus proches, bougent plus).
+     Élan : chaque pixel défilé ajoute BUBBLE_KICK px/s de vitesse aux bulles, vers le haut quand on descend ;
+     à l'arrêt, elles continuent sur leur lancée, ralentissent, redescendent et rebondissent. */
+  var BUBBLE_KICK = 0.9;
   var bubbleBox = document.querySelector('.bubbles');
   if (!still && bubbleBox) {
     var bubbles = [].map.call(bubbleBox.querySelectorAll('.bubble'), function (el, i) {
@@ -771,26 +774,36 @@
         depth: 0.08 + Math.min(size, 170) / 170 * 0.22,   // 0,08 à 0,30
         ax: 10 + (i * 7) % 14, ay: 12 + (i * 5) % 12,      // amplitude de la dérive (px)
         px: 11000 + i * 2000, py: 8500 + i * 1500,         // périodes (ms) : lent, un peu plus vif qu'avant
-        ph: i * 1.7
+        ph: i * 1.7,
+        k: 42 + (i * 7) % 20, z: 0.3 + (i % 3) * 0.04,     // ressort : raideur, amortissement (peu : ça rebondit)
+        y: null, v: 0
       };
     });
     var boxVisible = true;
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (e) { boxVisible = e[0].isIntersecting; }, { rootMargin: '200px 0px' }).observe(bubbleBox);
     }
+    var lastY = window.scrollY, lastT = performance.now();
     (function tick(now) {
-      var vh = window.innerHeight;
+      var vh = window.innerHeight, dt = Math.min((now - lastT) / 1000, 1 / 30); lastT = now;
+      var dy = window.scrollY - lastY; lastY = window.scrollY;
       if (boxVisible) {
         var top = bubbleBox.querySelector('.bubble-layer').getBoundingClientRect().top;
         bubbles.forEach(function (b) {
           var par = (top + b.el.offsetTop + b.el.offsetHeight / 2 - vh / 2) * b.depth;   // nul quand la bulle est au centre de l'écran
+          if (b.y === null) b.y = par;
+          // Élan : le défilement pousse la bulle (vers le haut quand on descend), le ressort la ramène et elle rebondit.
+          b.v -= dy * BUBBLE_KICK * b.depth / 0.3;
+          b.v += (b.k * (par - b.y) - 2 * Math.sqrt(b.k) * b.z * b.v) * dt;
+          b.v = Math.max(-650, Math.min(650, b.v));
+          b.y += b.v * dt;
           var x = Math.sin(now / b.px * 2 * Math.PI + b.ph) * b.ax;
-          var y = Math.cos(now / b.py * 2 * Math.PI + b.ph) * b.ay + par;
+          var y = Math.cos(now / b.py * 2 * Math.PI + b.ph) * b.ay + b.y;
           b.el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
         });
       }
       requestAnimationFrame(tick);
-    })(performance.now());
+    })(lastT);
   }
 
   /* Menu mobile */
@@ -838,13 +851,15 @@
     // Fin de page : e passe de 1 (bloc encore sous l'écran) à 0 (bas de page atteint)
     var f = fin.getBoundingClientRect();
     finE = 1 - Math.max(0, Math.min(1, (vh - f.top) / f.height));
+    var dy = window.scrollY - finLastY; finLastY = window.scrollY;
+    if (f.top < vh) springs.forEach(function (sp) { if (!sp.floor) sp.v -= dy * BUBBLE_KICK; });   // élan du défilement
     kickSprings();
   }
 
   /* Ressorts de la fin de page. Chaque calque vise e × sa course (px) ; raideur k, amortissement c.
      Pied et dégradé : amortis (pas de rebond) et jamais au-dessus de leur place (sinon un vide apparaîtrait
      sous la page). Bulles : peu amorties, elles dépassent vers le haut puis rebondissent. */
-  var finE = 1, springRaf = 0, springLast = 0;
+  var finE = 1, springRaf = 0, springLast = 0, finLastY = window.scrollY;
   var springs = [
     { el: foot, run: 260, k: 90, c: 19, floor: true },
     { el: fin.querySelector('.finale-bg'), run: 420, k: 60, c: 14, floor: true }
@@ -969,7 +984,7 @@
   setInterval(update, 60000);
 })();
 </script>
-<script src="../assets/intro-resine.js" data-src="../assets/v2/hero.jpg" defer></script>
+<script src="../assets/intro-resine.js" data-src="../assets/main-background.jpg" defer></script>
 <script src="../assets/resine.js" defer></script>
 <script src="../assets/bouton-resine.js" data-src="../assets/v2/hero.jpg" defer></script>
 <script src="../assets/bouton-aimant.js" defer></script>
