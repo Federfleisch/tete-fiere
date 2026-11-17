@@ -248,7 +248,8 @@
     gl.uniform2f(U.res, canvas.width, canvas.height);
     gl.uniform4f(U.win, cur.win[0], cur.win[1], cur.win[2], cur.win[3]);
     gl.uniform1f(U.t, (now - cur.t0) / 1000);
-    gl.uniform1f(U.level, -reach - 0.3 + (1.3 + 2 * reach) * ease(p));
+    // Départ juste sous le bouton (marge réduite de 0,3 à 0,05 hauteur) : la pâte apparaît dès le survol.
+    gl.uniform1f(U.level, -reach - 0.05 + (1.05 + 2 * reach) * ease(p));
     gl.uniform1f(U.wave, CFG.wave); gl.uniform1f(U.tilt, CFG.tilt);
     gl.uniform1f(U.bumpA, 0.3 * (1 - p) * (1 - p));
     gl.uniform1f(U.bumpC, cur.bumpC);
