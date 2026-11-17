@@ -45,6 +45,9 @@
      Survol Primary : dégradé 1, texte et flèche bleu nuit. Survol Secondary : contour rose, texte et flèche bleu nuit ; fond rose clair en aplat (essai bouton, 17 novembre). */
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 30px;border-radius:999px;border:2px solid transparent;font-family:var(--f-display);font-weight:500;font-size:16px;line-height:17px;letter-spacing:-.16px;cursor:pointer;white-space:nowrap;transition:background .25s ease,color .25s ease,border-color .25s ease}
   .btn-lg{padding:19px 38px;font-size:18px;letter-spacing:-.18px}
+  /* XLarge (styleguide du 17 novembre) : H73, padding 28/64 bordure comprise ; taille du texte estimée sur la capture (22 px) */
+  .btn-xl{padding:26px 62px;gap:12px;font-size:22px;letter-spacing:-.22px}
+  .btn.btn-xl img{width:18px;height:15px}
   .btn-navy{background:var(--navy);color:#fff}
   .btn-navy:hover{background:var(--gradient-1);color:var(--navy)}
   .btn-ghost{background:transparent;border-color:var(--navy);color:var(--navy)}
@@ -129,9 +132,10 @@
   }
 
   /* Bloc 1 : intro et valeurs */
-  .bloc1{position:relative;padding:120px 0 80px;display:flex;flex-direction:column;align-items:center;gap:80px}
+  .bloc1{position:relative;padding:120px 0 80px;display:flex;flex-direction:column;align-items:center;gap:60px}
   .intro{max-width:900px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px}
   .intro h2{font-family:var(--f-display);font-weight:600;font-size:clamp(44px,6.4vw,88px);line-height:1.08;letter-spacing:-.01em}
+  .intro .actions{display:flex;justify-content:center;padding-top:6px}
   .grad{background:linear-gradient(154deg,#FFA1E2 47.6%,#C9B8FE 72.6%,#91C8FE 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
   .values{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px}
   .value{border-radius:48px;padding:34px;display:flex;flex-direction:column;gap:7.4px}
@@ -279,7 +283,9 @@
   @media (max-width:600px){
     .burger-sticky{display:block}
     .nav-sticky{display:none}
-    .bloc1{padding:72px 0 64px;gap:56px}
+    .bloc1{padding:72px 0 64px;gap:48px}
+    .btn-xl{padding:19px 38px;gap:8px;font-size:18px;letter-spacing:-.18px}
+    .btn.btn-xl img{width:12px;height:10px}
     .shop{padding:72px 0 80px}
     .carousel-nav{position:static;order:3;justify-content:center;margin-top:24px}
     .shop{display:flex;flex-direction:column}
@@ -356,6 +362,9 @@
     <section class="bloc1 wrap">
       <div class="intro rv">
         <h2>Des pièces uniques,<br>portées avec <span class="grad">fierté</span></h2>
+        <div class="actions">
+          <a class="btn btn-navy btn-xl" href="#boutique">Voir les nouveautés <img class="arr-white" src="../assets/v2/fleche.svg" alt="" width="18" height="15"><img class="arr-navy" src="../assets/v2/fleche-navy.svg" alt="" width="18" height="15"></a>
+        </div>
       </div>
       <div class="values">
         <div class="value rv" style="background:var(--pink-100)">
