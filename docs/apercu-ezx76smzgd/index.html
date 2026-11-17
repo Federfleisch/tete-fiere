@@ -53,6 +53,19 @@
   .btn .arr-navy{display:none}
   .btn-navy:hover .arr-white{display:none}
   .btn-navy:hover .arr-navy{display:block}
+  /* Survol « résine » (assets/bouton-resine.js) : le bouton se remplit de résine de bas en haut.
+     La classe .rb n'est posée que si l'effet est disponible (souris, WebGL 2, animations permises) ;
+     sinon le survol ci-dessus reste en place. */
+  .btn.rb{position:relative;isolation:isolate;transition:color .25s ease,border-color .25s ease}
+  .btn-navy.rb:hover{background:var(--navy);color:#fff}
+  .btn-navy.rb:hover > .arr-white{display:block}
+  .btn-navy.rb:hover > .arr-navy{display:none}
+  .btn-navy.rb.rb-on{background:transparent}
+  .btn-ghost.rb-on{border-color:var(--pink-200)}
+  .rb-canvas{position:absolute;z-index:-1;border-radius:999px;pointer-events:none}
+  .rb-label{position:absolute;inset:-2px;z-index:1;display:flex;align-items:center;justify-content:center;gap:inherit;padding:inherit;border:2px solid transparent;border-radius:inherit;color:var(--navy);pointer-events:none;clip-path:inset(100% 0 0 0)}
+  .btn .rb-label .arr-white{display:none}
+  .btn .rb-label .arr-navy{display:block}
 
   /* Pastilles */
   .pill{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:999px;font-family:var(--f-display);font-weight:600;font-size:15px;line-height:1;letter-spacing:.9px;text-transform:uppercase;color:var(--grey-600);background:#fff}
@@ -647,5 +660,6 @@
 })();
 </script>
 <script src="../assets/resine.js" defer></script>
+<script src="../assets/bouton-resine.js" data-src="../assets/v2/hero.jpg" defer></script>
 </body>
 </html>
