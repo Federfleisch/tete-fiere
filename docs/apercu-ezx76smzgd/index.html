@@ -114,7 +114,7 @@
   .nav .cart .soon{position:absolute;left:24px;top:-15px;transform:rotate(3deg);background:var(--pink-100);color:#B2639A;font-family:var(--f-body);font-weight:700;font-size:11px;line-height:1;padding:7px 10px;border-radius:999px}
 
   /* Bandeau défilant */
-  .slider{overflow:hidden;background:linear-gradient(90deg,#171547,#271547);padding:clamp(22px,2.6vw,42px) 0}
+  .slider{overflow:hidden;background:var(--navy);padding:clamp(22px,2.6vw,42px) 0}
   .slider-track{--gap:.5em;display:flex;width:max-content;gap:var(--gap);padding-right:var(--gap);align-items:center;font-family:var(--f-display);font-weight:500;font-size:clamp(24px,3vw,44px);line-height:1.2;color:#fff;white-space:nowrap}
   .slider-track .dot{width:.34em;height:.34em;border-radius:50%;background:var(--pink-200);flex:none}
   @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -152,13 +152,13 @@
   .shop-head{display:flex;flex-direction:column;align-items:center;gap:13px;padding:0 16px}
   .carousel-nav{position:absolute;top:218px;right:54px;display:flex;gap:16px;z-index:3}
   .carousel-nav button{width:52px;height:52px;padding:0;border:none;background:none;cursor:pointer;position:relative}
-  .carousel-nav button img{position:absolute;left:-14px;top:-8px;width:80px;height:80px;max-width:none}
-  .carousel-nav button .off{display:none}
+  .carousel-nav button img{position:absolute;left:-14px;top:-8px;width:80px;height:80px;max-width:none;transition:opacity .35s ease}
+  .carousel-nav button .off{opacity:0}
   .carousel-nav button[aria-disabled="true"]{cursor:default}
-  .carousel-nav button[aria-disabled="true"] .on{display:none}
-  .carousel-nav button[aria-disabled="true"] .off{display:block}
+  .carousel-nav button[aria-disabled="true"] .on{opacity:0}
+  .carousel-nav button[aria-disabled="true"] .off{opacity:1}
   .carousel-nav .prev .on,.carousel-nav .next .off{transform:scaleX(-1)}
-  .carousel{--start:max(16px,calc((100% - 1200px) / 2 + 28px));display:flex;gap:32px;margin-top:52px;padding:24px var(--start) 30px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--start);scrollbar-width:none;overscroll-behavior-x:contain}
+  .carousel{--start:max(16px,calc((100% - 1200px) / 2 + 28px));display:flex;gap:32px;margin-top:52px;padding:24px 54px 30px var(--start);overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--start);scrollbar-width:none;overscroll-behavior-x:contain}
   .carousel::-webkit-scrollbar{display:none}
   .carousel:focus-visible{outline-offset:-6px}
   .shop .fade{position:absolute;right:0;top:296px;width:68px;height:509px;pointer-events:none;z-index:2;transform:translateY(-26px);transition:opacity .35s ease}
@@ -189,12 +189,12 @@
   .photos-inner{display:flex;height:clamp(240px,42vw,428px);border:12px solid #fff;border-radius:24px;overflow:hidden;box-shadow:0 0 48px rgba(17,15,57,.02)}
   .photos-inner img{flex:1 1 0;min-width:0;width:50%;height:100%;object-fit:cover;object-position:50% 100%}
   /* z-index : le bas de la carte déborde sur la section Pauline, qui sinon la recouvre et bloque le bouton Itinéraire. */
-  .contact{position:absolute;z-index:2;left:43.5%;top:325px;width:max-content;max-width:calc(100vw - 32px);transform:translateY(var(--py,0px)) rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(0 0 17px rgba(17,15,57,.1))}
+  .contact{position:absolute;z-index:2;left:43.5%;top:325px;width:350px;max-width:calc(100vw - 32px);transform:translateY(var(--py,0px)) rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(0 0 17px rgba(17,15,57,.1))}
   @keyframes drift{0%,100%{translate:0 0;rotate:0deg}30%{translate:5px -9px;rotate:.9deg}65%{translate:-4px -3px;rotate:-.6deg}}
   @media (prefers-reduced-motion:no-preference){.contact{animation:drift 9s ease-in-out infinite}}
   .contact .head{display:flex;align-items:center;gap:14px}
   .contact .head img{width:60px;height:60px;border-radius:50%;object-fit:cover;flex:none}
-  .contact .name{font-family:var(--f-display);font-weight:500;font-size:30px;line-height:33px;letter-spacing:-.3px}
+  .contact .name{font-family:var(--f-display);font-weight:500;font-size:30px;line-height:30px;letter-spacing:-.3px}
   .contact .city{font-size:15px;color:var(--ink);margin-top:3px}
   .contact .row{display:flex;align-items:center;justify-content:space-between;gap:16px}
   .contact address{font-style:normal;font-size:16px;line-height:1.27;color:var(--ink)}
@@ -312,7 +312,7 @@
     .shop{display:flex;flex-direction:column}
     .shop .fade{display:none}
     /* Carte active centrée, un bout de la précédente et de la suivante visibles (maquette mobile) */
-    .carousel{margin-top:24px;--start:calc((100% - 276px) / 2);scroll-padding-inline:0}
+    .carousel{margin-top:24px;--start:calc((100% - 276px) / 2);padding-inline:var(--start);scroll-padding-inline:0}
     .product{scroll-snap-align:center}
     .contact .name{font-size:24px;line-height:28px}
     .contact .row{flex-wrap:wrap}
@@ -334,7 +334,7 @@
     <div class="burger-menu" id="burger-menu" hidden>
       <a href="#boutique">Créations</a>
       <a href="#ou-me-trouver">Points de vente</a>
-      <a href="mailto:info@tetefiere.be" target="_blank" rel="noopener">Me contacter</a>
+      <a href="#contact">Me contacter</a>
       <span class="cart">Mon panier <span class="soon">Bientôt</span></span>
     </div>
   </nav>
@@ -354,7 +354,7 @@
   <nav class="nav" aria-label="Navigation principale">
     <a href="#boutique">Créations</a>
     <a href="#ou-me-trouver">Points de vente</a>
-    <a href="mailto:info@tetefiere.be" target="_blank" rel="noopener">Me contacter</a>
+    <a href="#contact">Me contacter</a>
     <span class="cart" aria-label="Mon panier, bientôt disponible">Mon panier<span class="soon" aria-hidden="true">Bientôt</span></span>
   </nav>
 </div>
@@ -519,7 +519,7 @@
       <div class="contact">
         <div class="head">
           <img src="../assets/v2/avatar-rose.jpg" alt="" width="180" height="180" loading="lazy">
-          <div><p class="name">Rose Concept Store</p><p class="city">Huy, Belgique</p></div>
+          <div><p class="name">Rose<br>Concept Store</p><p class="city">Huy, Belgique</p></div>
         </div>
         <div class="row">
           <address>24 Grand Place, Huy<br>Belgium, 4500</address>
@@ -542,13 +542,13 @@
 <div class="finale">
     <div class="finale-bg" aria-hidden="true"></div>
     <div class="finale-bubbles" aria-hidden="true">
-      <span class="bubble float" style="width:46px;height:46px;left:-14px;top:30%;opacity:.55;--v:340px;--dur:8s"></span>
-      <span class="bubble float" style="width:clamp(64px,7vw,104px);height:clamp(64px,7vw,104px);left:14%;top:24%;opacity:.7;--v:560px;--dur:10s;--delay:-3s;--float:-12px"></span>
-      <span class="bubble float" style="width:clamp(48px,5vw,76px);height:clamp(48px,5vw,76px);right:10%;top:17%;opacity:.7;--v:420px;--dur:8.5s;--delay:-1s"></span>
-      <span class="bubble float" style="width:30px;height:30px;right:2.5%;top:45%;opacity:.45;--v:700px;--dur:7s;--delay:-4s"></span>
-      <span class="bubble big float" style="width:clamp(110px,10vw,166px);height:clamp(110px,10vw,166px);right:15%;bottom:calc(var(--foot-h,277px) - 26px);opacity:.9;--v:820px;--dur:11s;--delay:-5s;--float:-14px"></span>
+      <span class="bubble float" style="width:46px;height:46px;left:-14px;top:30%;opacity:.55;--v:340px;--dur:5.2s"></span>
+      <span class="bubble float" style="width:clamp(64px,7vw,104px);height:clamp(64px,7vw,104px);left:14%;top:24%;opacity:.7;--v:560px;--dur:6.5s;--delay:-3s;--float:-12px"></span>
+      <span class="bubble float" style="width:clamp(48px,5vw,76px);height:clamp(48px,5vw,76px);right:10%;top:17%;opacity:.7;--v:420px;--dur:5.5s;--delay:-1s"></span>
+      <span class="bubble float" style="width:30px;height:30px;right:2.5%;top:45%;opacity:.45;--v:700px;--dur:4.6s;--delay:-4s"></span>
+      <span class="bubble big float" style="width:clamp(110px,10vw,166px);height:clamp(110px,10vw,166px);right:15%;bottom:calc(var(--foot-h,277px) - 26px);opacity:.9;--v:820px;--dur:7.2s;--delay:-5s;--float:-14px"></span>
     </div>
-    <section class="outro" aria-labelledby="outro-title">
+    <section class="outro" id="contact" aria-labelledby="outro-title">
       <h2 class="title-60 rv" id="outro-title">Une demande de bijou&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
       <div class="outro-actions rv">
         <a class="btn btn-navy btn-lg" href="mailto:info@tetefiere.be" target="_blank" rel="noopener">Me contacter</a>
@@ -609,7 +609,7 @@
   var fadeL = document.querySelector('.shop .fade-left'), fadeR = document.querySelector('.shop .fade-right');
   function step() { var c = track.querySelector('.product'); return c ? c.getBoundingClientRect().width + 32 : 300; }
   function updateNav() {
-    var max = track.scrollWidth - track.clientWidth - 2;
+    var max = track.scrollWidth - track.clientWidth - 4;   // tolérance : positions fractionnaires sur écran haute densité
     prev.setAttribute('aria-disabled', String(track.scrollLeft <= 2));
     next.setAttribute('aria-disabled', String(track.scrollLeft >= max));
     fadeL.classList.toggle('on', track.scrollLeft > 2);     // ombre à gauche dès que les premières cartes débordent
@@ -627,7 +627,7 @@
     (function f(now) {
       var q = Math.min(1, (now - t0) / D), e = q < .5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2;
       track.scrollLeft = from + (to - from) * e;
-      if (q < 1) glideRaf = requestAnimationFrame(f); else track.style.scrollSnapType = '';
+      if (q < 1) glideRaf = requestAnimationFrame(f); else { track.style.scrollSnapType = ''; requestAnimationFrame(updateNav); }
     })(t0);
   }
   prev.addEventListener('click', function () { if (prev.getAttribute('aria-disabled') !== 'true') glide(-step()); });
@@ -701,7 +701,7 @@
         el: el,
         depth: 0.08 + Math.min(size, 170) / 170 * 0.22,   // 0,08 à 0,30
         ax: 10 + (i * 7) % 14, ay: 12 + (i * 5) % 12,      // amplitude de la dérive (px)
-        px: 17000 + i * 3100, py: 13000 + i * 2300,        // périodes (ms) : lent
+        px: 11000 + i * 2000, py: 8500 + i * 1500,         // périodes (ms) : lent, un peu plus vif qu'avant
         ph: i * 1.7
       };
     });
