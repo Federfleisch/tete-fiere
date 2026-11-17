@@ -183,7 +183,8 @@
   .photos-frame::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(129deg,#CDBFF7 5%,#F39CEC 105%);filter:blur(52px);opacity:.35}
   .photos-inner{display:flex;height:clamp(240px,42vw,428px);border:12px solid #fff;border-radius:24px;overflow:hidden;box-shadow:0 0 48px rgba(17,15,57,.02)}
   .photos-inner img{flex:1 1 0;min-width:0;width:50%;height:100%;object-fit:cover;object-position:50% 100%}
-  .contact{position:absolute;left:43.5%;top:325px;width:max-content;max-width:calc(100vw - 32px);transform:rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(0 0 17px rgba(17,15,57,.1))}
+  /* z-index : le bas de la carte déborde sur la section Pauline, qui sinon la recouvre et bloque le bouton Itinéraire. */
+  .contact{position:absolute;z-index:2;left:43.5%;top:325px;width:max-content;max-width:calc(100vw - 32px);transform:rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(0 0 17px rgba(17,15,57,.1))}
   .contact .head{display:flex;align-items:center;gap:14px}
   .contact .head img{width:60px;height:60px;border-radius:50%;object-fit:cover;flex:none}
   .contact .name{font-family:var(--f-display);font-weight:500;font-size:30px;line-height:33px;letter-spacing:-.3px}

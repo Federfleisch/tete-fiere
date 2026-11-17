@@ -29,7 +29,7 @@
     relief: 1.5,        // épaisseur de la pâte (force des plis et des ombres)
     blur: 0.9,          // flou de la photo (plus grand = zones de couleur plus larges, 0 = photo nette)
     lighten: 0.14,      // part de blanc mêlée à la résine
-    darken: 0.02,       // part de noir mêlée à la résine (lisibilité du texte blanc)
+    darken: 0.03,       // part de noir mêlée à la résine (lisibilité du texte blanc)
     stir: 0.6,          // réaction de la pâte au curseur (0 = aucune)
     zoom: 0.5           // hauteur de la fenêtre lue dans la photo (plus petit = plus zoomé)
   };
