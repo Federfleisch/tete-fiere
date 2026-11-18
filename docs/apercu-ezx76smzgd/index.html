@@ -229,7 +229,7 @@
   .photos-frame{position:relative;isolation:isolate}
   .photos-frame::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(129deg,#CDBFF7 5%,#F39CEC 105%);filter:blur(52px);opacity:.35}
   .photos-inner{display:flex;height:clamp(240px,42vw,428px);border:12px solid #fff;border-radius:24px;overflow:hidden;box-shadow:0 0 48px rgba(17,15,57,.02)}
-  .photos-inner img{flex:1 1 0;min-width:0;width:50%;height:100%;object-fit:cover;object-position:50% 100%}
+  .photos-inner img{flex:1 1 0;min-width:0;width:50%;height:100%;object-fit:cover;object-position:50% 55%}   /* boucles chat au centre */
   .photos-inner img + img{object-position:50% 0}   /* vitrine de Rose : l'enseigne visible (maquette du 18 novembre) */
   /* z-index : le bas de la carte déborde sur la section Pauline, qui sinon la recouvre et bloque le bouton Itinéraire. */
   .contact{position:absolute;z-index:2;left:min(100% + 37px,50% + 50vw - 215px);top:calc(30px + (clamp(240px,42vw,428px) + 24px) / 2 + 15px);width:350px;max-width:calc(100vw - 32px);transform:translate(calc(-50% + var(--tx,0px)),calc(-50% + var(--py,0px) + var(--ty,0px))) rotate(2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(var(--sx,0px) var(--sy,0px) 17px rgba(17,15,57,.1))}   /* --tx/--ty, --sx/--sy : carte repoussée par le curseur (bouton-aimant.js) */
@@ -487,7 +487,7 @@
     .quote-svg.quote-m{display:block;width:100%}
     .photos-inner{flex-direction:column;height:auto}
     .photos-inner img{width:100%;flex:none;height:260px}
-    .photos-inner img + img{object-position:50% 100%}
+    .photos-inner img + img{object-position:50% 12%}
     .photos-inner img + img{height:220px}
     /* Carte de Rose centrée : photo, statut, nom, adresse, Itinéraire pleine largeur, réseaux dessous */
     .contact{width:min(294px,100%);margin-top:-96px;padding:28px;align-items:center;text-align:center;gap:14px}
@@ -572,7 +572,6 @@
         <h2>Des pièces uniques,<br>portées avec <span class="grad">fierté</span></h2>
         <div class="actions">
           <a class="btn btn-navy btn-xl" href="#boutique">Voir les nouveautés <img class="arr-white" src="../assets/v2/fleche.svg" alt="" width="18" height="15"><img class="arr-navy" src="../assets/v2/fleche-navy.svg" alt="" width="18" height="15"></a>
-          <a class="btn btn-ghost btn-xl" href="#contact" data-contact data-topic="Demande de bijou" aria-haspopup="dialog">Imaginer ma pièce</a>
         </div>
       </div>
       <div class="values">
@@ -588,8 +587,8 @@
         </div>
         <div class="value rv" style="background:var(--purple-100)">
           <span class="icon float" style="--dur:7.4s;--delay:-4.1s;--float:-8px"><img src="../assets/v2/icone-sur-mesure.svg" alt="" width="28" height="28"></span>
-          <h3>Sur mesure</h3>
-          <p style="color:var(--purple-600)">Une couleur, une forme, une envie ? Je la crée pour vous.</p>
+          <h3>Fait en Belgique</h3>
+          <p style="color:var(--purple-600)">Chaque bijou naît dans mon atelier, en Belgique.</p>
         </div>
       </div>
     </section>
@@ -777,7 +776,7 @@
   <section class="wrap pauline" aria-label="Pauline, créatrice de Tête Fière">
     <div class="pauline-text rv">
       <p>Derrière Tête Fière, il y a moi, <strong>Pauline</strong>. Entre moules, pigments et coulées de résine, je façonne des pièces qui assument leur caractère.</p>
-      <p>Chaque création est fabriquée en petite série ou sur commande, avec le soin qu'on met aux choses qu'on garde longtemps.</p>
+      <p>Chaque création est fabriquée en petite série, avec le soin qu'on met aux choses qu'on garde longtemps.</p>
     </div>
     <div class="pauline-photo" data-aimant="repousse" data-aimant-push="7">
       <img src="../assets/v2/pauline-ronde.webp" alt="Pauline, créatrice de Tête Fière" width="856" height="856" loading="lazy">
@@ -792,8 +791,8 @@
     <div class="photos">
       <div class="photos-frame float" style="--dur:10s;--float:-6px">
         <div class="photos-inner">
-          <img src="../assets/v2/boucle-gros-plan.jpg" alt="Une boucle d'oreille en résine pailletée bleue tenue entre deux doigts" width="1024" height="1024" loading="lazy">
-          <img src="../assets/v2/vitrine-rose.jpg" alt="La vitrine de Rose, Concept Store à Huy" width="768" height="1024" loading="lazy">
+          <img src="../assets/v2/boucles-chat.jpg" alt="Des boucles d'oreilles têtes de chat nacrées sur anneaux dorés, tenues entre deux doigts" width="1024" height="1365" loading="lazy">
+          <img src="../assets/v2/vitrine-rose-enseigne.jpg" alt="La vitrine de Rose, Concept Store à Huy" width="1024" height="1365" loading="lazy">
         </div>
       </div>
       <div class="contact" data-aimant="repousse">
@@ -889,7 +888,6 @@
       <label class="sr" for="cf-topic">Concerne</label>
       <select class="field empty" id="cf-topic" name="sujet" required aria-describedby="cf-topic-err">
         <option value="" selected disabled>Concerne : *</option>
-        <option>Demande de bijou</option>
         <option>Demande de collaboration</option>
         <option>Question générale</option>
         <option>Autre</option>
@@ -1219,7 +1217,7 @@
     a.addEventListener('click', function (e) {
       if (!window.HTMLDialogElement || e.metaKey || e.ctrlKey || e.shiftKey) return;   // sinon : le mailto reste le secours
       e.preventDefault();
-      var topic = a.getAttribute('data-topic');   // sujet déjà choisi (« Imaginer ma pièce » : Demande de bijou)
+      var topic = a.getAttribute('data-topic');   // sujet déjà choisi si le lien porte data-topic
       if (topic) { fTopic.value = topic; fTopic.classList.remove('empty'); if (fTopic.getAttribute('aria-invalid') === 'true') setErr(fTopic, null, ''); updateSend(); }
       contact.open(a);
     });
