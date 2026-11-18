@@ -12,7 +12,7 @@
  * « réduire les animations » : l'ombre reste au repos.
  * Réglages à chaud : window.boutonAimant (valeurs choisies par Denis, 17 novembre 2026).
  *
- * Variante « repousse » (data-aimant="repousse", carte de Rose) : c'est l'élément lui-même qui
+ * Variante « repousse » (data-aimant="repousse", carte de Rose, photo de Pauline) : c'est l'élément lui-même qui
  * s'écarte du curseur, et son ombre le suit avec un peu plus d'écart (effet de hauteur). Le script
  * écrit --tx, --ty (déplacement de l'élément) et --sx, --sy (décalage de l'ombre) ; le CSS les utilise.
  */
@@ -27,7 +27,7 @@
     move: 0.09,     // part de l'écart appliquée au bouton, dans l'autre sens (0 = immobile)
     restY: 16,      // ombre au repos : décalage vers le bas, en px (même valeur que le CSS)
     // Variante « repousse » (carte de Rose)
-    cardPush: 16,   // écart maximal de la carte, en px
+    cardPush: 10,   // écart maximal de la carte, en px (16 avant le 18 novembre) ; data-aimant-push pour un autre élément
     cardReach: 140, // portée à l'approche, en px
     cardShadow: 0.6 // part de l'écart ajoutée à l'ombre, dans le même sens (elle suit la carte)
   };
@@ -49,7 +49,7 @@
     var ex = Math.max(Math.abs(dx) - hw, 0), ey = Math.max(Math.abs(dy) - hh, 0);
     var out = Math.sqrt(ex * ex + ey * ey);
     var ux = dx / hw, uy = dy / hh, ul = Math.sqrt(ux * ux + uy * uy) || 1;
-    var reach = b.repel ? A.cardReach : A.reach, push = b.repel ? A.cardPush : A.push;
+    var reach = b.repel ? A.cardReach : A.reach, push = b.repel ? (b.push || A.cardPush) : A.push;
     var k = out > 0 ? (reach > 0 ? Math.max(0, 1 - out / reach) : 0) : Math.min(1, ul);
     // Direction opposée au curseur ; vertical un peu atténué (le bouton est large et bas).
     b.tx = -ux / ul * push * k;
@@ -85,7 +85,8 @@
 
   function init() {
     btns = [].slice.call(document.querySelectorAll('.btn-white, [data-aimant="repousse"]')).map(function (el) {
-      return { el: el, x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, repel: el.getAttribute('data-aimant') === 'repousse' };
+      return { el: el, x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, repel: el.getAttribute('data-aimant') === 'repousse',
+        push: parseFloat(el.getAttribute('data-aimant-push')) || 0 };   // écart propre à l'élément (photo de Pauline : plus doux)
     });
     if (!btns.length) return; // aucun élément aimanté sur la page : rien à écouter
     document.addEventListener('pointermove', function (e) {

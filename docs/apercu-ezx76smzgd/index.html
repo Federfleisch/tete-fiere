@@ -112,7 +112,8 @@
   .nav a,.nav .cart{display:inline-flex;align-items:center;padding:10px 16px;border-radius:999px;background:#fff;font-family:var(--f-display);font-weight:500;font-size:16px;line-height:1;color:var(--navy)}
   .nav a{transition:background .2s ease}
   .nav a:hover{background:var(--pink-100)}
-  .nav .cart{position:relative;padding:9px 9px 9px 18px;gap:10px;height:37px;color:rgba(17,15,57,.3)}   /* bientôt : 30 % */
+  .nav .cart{position:relative;padding:9px 9px 9px 18px;gap:10px;height:37px;color:rgba(17,15,57,.3)}   /* bientôt : 30 % ; mène au bloc e-shop */
+  @media (min-width:601px) and (max-width:760px){.nav{gap:6px;padding:8px}.nav a,.nav .cart{font-size:15px;padding-inline:12px}}
   .nav .cart .soon{position:absolute;left:24px;top:-15px;transform:rotate(3deg);background:var(--pink-100);color:#B2639A;font-family:var(--f-body);font-weight:700;font-size:11px;line-height:1;padding:7px 10px;border-radius:999px}
 
   /* Bandeau défilant */
@@ -139,7 +140,7 @@
   .bloc1{position:relative;padding:120px 0 80px;display:flex;flex-direction:column;align-items:center;gap:60px}
   .intro{max-width:900px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px}
   .intro h2{font-family:var(--f-display);font-weight:600;font-size:clamp(44px,6.4vw,88px);line-height:1.08;letter-spacing:-.01em}
-  .intro .actions{display:flex;justify-content:center;padding-top:6px}
+  .intro .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;padding-top:6px}
   .grad{background:linear-gradient(154deg,#FFA1E2 47.6%,#C9B8FE 72.6%,#91C8FE 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
   .values{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px}
   .value{border-radius:48px;padding:34px;display:flex;flex-direction:column;gap:7.4px}
@@ -150,7 +151,7 @@
   .title-60{font-family:var(--f-display);font-weight:600;font-size:clamp(36px,4.2vw,58px);line-height:1.1;letter-spacing:-.58px;text-align:center}
 
   /* Boutique : carrousel horizontal */
-  .shop{position:relative;border-radius:clamp(36px,5vw,72px);padding:110px 0 120px;background:linear-gradient(167deg,#F1ECFF 4.4%,#ECF1FF 85%);overflow:hidden}
+  .shop{position:relative;border-radius:clamp(36px,5vw,72px);padding:110px 0 250px;background:linear-gradient(167deg,#F1ECFF 4.4%,#ECF1FF 85%);overflow:hidden}
   .shop-head{display:flex;flex-direction:column;align-items:center;gap:13px;padding:0 16px}
   .carousel-nav{position:absolute;top:218px;right:54px;display:flex;gap:16px;z-index:3}
   /* Flèches : cercle blanc 52 px, ombre de la maquette (0 6 14, violet 400 à 8 %), flèche SVG de Denis (20 × 18) */
@@ -178,7 +179,40 @@
   .product .price-row{height:45px;display:flex;align-items:center;justify-content:space-between}
   .product .price{font-family:var(--f-display);font-weight:500;font-size:22px;letter-spacing:-.22px}
   .product .price.demo{filter:blur(5px);opacity:.3;user-select:none}   /* variante « demo » : prix flouté, 30 % */
+  /* « Voir tout » : le carrousel devient une grille (classe .grid) ; « Afficher plus » montre le reste (classe .all).
+     Les cartes .more n'existent que dans la grille. */
+  .shop .product.more{display:none}
+  .shop.grid .product.more{display:flex}
+  .shop-more{display:flex;justify-content:center;margin-top:28px}
+  .btn .arr-down{flex:none;width:12px;height:14px}
+  .shop.grid .carousel-nav,.shop.grid .fade,.shop.grid .shop-more{display:none}
+  .shop.grid .carousel{display:grid;grid-template-columns:repeat(auto-fill,276px);justify-content:center;gap:32px;padding:24px var(--gutter) 30px;overflow:visible;scroll-snap-type:none}
+  @property --fadeh{syntax:'<length>';inherits:false;initial-value:0px}
+  .shop.grid.limited .carousel{overflow:hidden;max-height:var(--lim,1200px);--fadeh:300px;-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - var(--fadeh)),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - var(--fadeh)),transparent)}
+  .shop.grid.opening .carousel{--fadeh:0px;transition:max-height 1.1s cubic-bezier(.45,0,.2,1),--fadeh 1.1s ease}
+  .grid-more{display:none;position:relative;z-index:3;justify-content:center;margin-top:-62px}
+  .shop.grid.limited .grid-more{display:flex;transition:opacity .3s ease}
+  .shop.grid.opening .grid-more{opacity:0;pointer-events:none}
   .add{width:48px;height:48px;border-radius:24px;border:none;background:var(--pink-200);display:flex;align-items:center;justify-content:center;cursor:not-allowed;opacity:.3;filter:blur(2px)}   /* flouté, 30 % */
+
+  /* Bloc e-shop : carte blanche posée à cheval sur le bas de la boutique */
+  .eshop{position:relative;z-index:3;width:min(770px,100% - 2 * var(--gutter));margin:-145px auto 0;padding:52px 40px 56px;border-radius:48px;background:#fff;box-shadow:0 20px 60px rgba(66,54,160,.1);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+  .eshop h2{font-family:var(--f-display);font-weight:600;font-size:clamp(24px,2.2vw,30px);line-height:1.2;letter-spacing:-.3px}
+  .eshop p{font-size:17px;line-height:1.5;color:var(--ink)}
+  .eshop-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:30px;margin-top:26px}
+  .eshop-actions .btn{min-width:240px}
+
+  /* À propos : Pauline. La photo flotte et s'écarte du curseur (comme la carte de Rose, en plus doux). */
+  .pauline{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:clamp(40px,5vw,72px);padding:16px 0 150px}
+  .pauline-text{width:min(445px,100%);display:flex;flex-direction:column;gap:35px;font-family:var(--f-display);font-size:22px;line-height:1.6;letter-spacing:-.1px}
+  .pauline-text strong{font-weight:600}
+  .pauline-photo{flex:none;width:clamp(260px,25vw,410px);aspect-ratio:1;border-radius:50%;overflow:hidden;transform:translate(var(--tx,0px),calc(var(--py,0px) + var(--ty,0px)));filter:drop-shadow(var(--sx,0px) calc(10px + var(--sy,0px)) 24px rgba(17,15,57,.1))}
+  .pauline-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;border-radius:50%}
+  @keyframes drift-soft{0%,100%{translate:0 0;rotate:0deg}35%{translate:4px -7px;rotate:.5deg}70%{translate:-3px -2px;rotate:-.4deg}}
+  @media (prefers-reduced-motion:no-preference){.pauline-photo{animation:drift-soft 10s ease-in-out infinite}}
+  .bubble-layer.front{z-index:3}
+  .about{position:relative}
+  .about .quote{padding-bottom:40px}
 
   /* Où me trouver */
   .where{padding-top:40px;padding-bottom:150px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
@@ -236,18 +270,42 @@
   .finale-bubbles .big{z-index:2}   /* …sauf la grosse, posée sur le bord du pied de page */
   .outro{position:relative;padding:clamp(88px,11vw,170px) var(--gutter) clamp(112px,13vw,200px);display:flex;flex-direction:column;align-items:center;gap:clamp(28px,4vw,44px);text-align:center}
   .outro h2{position:relative;z-index:1;text-wrap:balance}
-  .outro-actions{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:center}
-  .outro-actions .btn{min-width:200px}
+  .outro-actions{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;width:100%}
+  .outro-actions .btn{width:min(490px,100%)}
+  .outro-mail{font-size:16px;line-height:1.4;color:var(--ink)}
+  .outro-mail a{color:var(--navy);font-weight:700}
+  .outro-mail a:hover{text-decoration:underline}
   .btn-white{gap:12px}
   .btn-white img{width:auto;height:auto;margin-block:-4px}   /* l'icône ne doit pas agrandir le bouton (Large H59) */
-  @media (max-width:520px){.outro-actions{width:100%;flex-direction:column}.outro-actions .btn{width:100%;min-width:0}}
+  @media (max-width:520px){.eshop-actions{width:100%;flex-direction:column;gap:14px}.eshop-actions .btn{width:100%;min-width:0}}
 
   /* Pied de page */
   .site-footer{position:relative;z-index:1;background:var(--navy);color:#B9B5DC;border-radius:clamp(36px,5vw,72px) clamp(36px,5vw,72px) 0 0;padding:clamp(52px,6vw,80px) var(--gutter) clamp(40px,4vw,52px);display:flex;flex-direction:column;align-items:center;gap:30px;text-align:center}
   .site-footer .logo{display:block;width:clamp(150px,11vw,180px);height:auto;overflow:visible}
   .legal{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 32px;font-size:14px;line-height:1.36;letter-spacing:-.14px}
-  .legal a,.legal .id{color:#fff;font-weight:600}
-  .legal a:hover{text-decoration:underline}
+  .legal a,.legal .id,.legal-link{color:#fff;font-weight:600}
+  .legal a:hover,.legal-link:hover{text-decoration:underline}
+  .legal-link{padding:0;border:none;background:none;font:inherit;font-weight:600;letter-spacing:inherit;cursor:pointer}
+
+  /* Modale des mentions légales : arrivée avec un léger rebond. Fond : bleu nuit 90 % et flou d'arrière-plan
+     (33 dans Figma, soit 16,5 px en CSS). */
+  .modal{width:min(441px,100% - 32px);max-width:none;max-height:calc(100% - 32px);margin:auto;padding:24px;border:none;border-radius:32px;background:#fff;color:var(--navy);box-shadow:0 30px 80px rgba(17,15,57,.35);overflow:auto}
+  .modal::backdrop{background:rgba(17,15,57,.9);-webkit-backdrop-filter:blur(16.5px);backdrop-filter:blur(16.5px)}
+  @media (prefers-reduced-motion:no-preference){
+    .modal{opacity:0;scale:.82;translate:0 24px;transition:opacity .2s ease,scale .2s ease-in,translate .2s ease-in}
+    .modal::backdrop{opacity:0;transition:opacity .3s ease}
+    .modal.open{opacity:1;scale:1;translate:0 0;transition:opacity .25s ease,scale .6s cubic-bezier(.34,1.56,.64,1),translate .6s cubic-bezier(.34,1.56,.64,1)}
+    .modal.open::backdrop{opacity:1}
+  }
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .modal h2{font-family:var(--f-display);font-weight:500;font-size:24px;line-height:1.2;letter-spacing:-.24px}
+  .modal-close{padding:10px 18px;font-size:15px;gap:8px;box-shadow:0 6px 14px rgba(17,15,57,.18)}
+  .modal-close svg{width:11px;height:11px;flex:none}
+  .modal-body{background:#EDEDED;border-radius:20px;padding:24px;font-size:16px;line-height:1.5}
+  .modal-body p + p{margin-top:24px}
+  .modal-body strong{font-weight:700}
+  .modal-body a{text-decoration:underline;text-underline-offset:2px}
+  html.modal-lock{overflow:hidden}
 
   /* Arrivée sur la page (essai, assets/intro-resine.js) : voile bleu nuit qui se remplit de résine,
      puis entrée du bandeau, de la navigation, du tampon et de la bande défilante. */
@@ -312,6 +370,8 @@
     .contact{position:relative;left:auto;top:auto;margin:-48px auto 0;max-width:100%;padding:28px}
     .quote{padding:80px 16px 56px}
     .where{padding-bottom:80px}
+    .pauline{flex-direction:column;gap:40px;padding-bottom:100px}
+    .pauline-text{text-align:center}
     .finale-bubbles .big{right:4%;width:92px!important;height:92px!important;bottom:calc(var(--foot-h,277px) - 30px)!important}
   }
   @media (max-width:600px){
@@ -320,7 +380,7 @@
     .bloc1{padding:72px 0 64px;gap:48px}
     .btn-xl{padding:19px 38px;gap:8px;font-size:18px;letter-spacing:-.18px}
     .btn.btn-xl img{width:12px;height:10px}
-    .shop{padding:72px 0 80px}
+    .shop{padding:72px 0 200px}
     .carousel-nav{position:static;order:3;justify-content:center;margin-top:24px}
     .shop{display:flex;flex-direction:column}
     .shop .fade{display:none}
@@ -333,7 +393,11 @@
     .stamp{display:none}
     .intro h2{font-size:min(48px,12.6vw)}
     .intro .actions{width:100%}
+    .intro .actions{flex-direction:column;gap:12px}
     .intro .actions .btn{width:100%}
+    .eshop{padding:40px 24px;border-radius:32px}
+    .pauline-text{font-size:19px;gap:24px}
+    .pauline-photo{width:min(280px,80vw)}
     .value{border-radius:24px;padding:24px}
     .value .icon{width:48px;height:48px}
     .value h3{font-size:20px;letter-spacing:-.2px}
@@ -375,9 +439,10 @@
     <button class="burger-btn" type="button" aria-expanded="false" aria-controls="burger-menu" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <div class="burger-menu" id="burger-menu" hidden>
       <a href="#boutique">Créations</a>
+      <a href="#a-propos">À propos</a>
       <a href="#ou-me-trouver">Points de vente</a>
       <a href="#contact">Me contacter</a>
-      <span class="cart">Mon panier <span class="soon">Bientôt</span></span>
+      <a class="cart" href="#e-shop">Mon panier <span class="soon">Bientôt</span></a>
     </div>
   </nav>
 </div>
@@ -395,9 +460,10 @@
 <div class="nav-sticky">
   <nav class="nav" aria-label="Navigation principale">
     <a href="#boutique">Créations</a>
+    <a href="#a-propos">À propos</a>
     <a href="#ou-me-trouver">Points de vente</a>
-    <a href="#contact">Me contacter</a>
-    <span class="cart" aria-label="Mon panier, bientôt disponible">Mon panier<span class="soon" aria-hidden="true">Bientôt</span></span>
+    <a href="#contact">Contact</a>
+    <a class="cart" href="#e-shop" aria-label="Mon panier, bientôt disponible">Mon panier<span class="soon" aria-hidden="true">Bientôt</span></a>
   </nav>
 </div>
 
@@ -428,6 +494,7 @@
         <h2>Des pièces uniques,<br>portées avec <span class="grad">fierté</span></h2>
         <div class="actions">
           <a class="btn btn-navy btn-xl" href="#boutique">Voir les nouveautés <img class="arr-white" src="../assets/v2/fleche.svg" alt="" width="18" height="15"><img class="arr-navy" src="../assets/v2/fleche-navy.svg" alt="" width="18" height="15"></a>
+          <a class="btn btn-ghost btn-xl" href="#contact">Imaginer ma pièce</a>
         </div>
       </div>
       <div class="values">
@@ -501,11 +568,72 @@
           <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
             <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
         </article>
+        <!-- Cartes visibles seulement dans la grille (« Voir tout ») : copies provisoires des 8 premières -->
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill pill-purple">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill pill-pink">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill pill-purple">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
+        <article class="product more">
+          <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
+            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+        </article>
     </div>
+    <div class="grid-more"><button class="btn btn-navy" type="button" id="show-all">Afficher plus <svg class="arr-down" viewBox="0 0 11.65 13.65" fill="none" aria-hidden="true" focusable="false"><path d="M5.825 0.825V12.825M10.825 7.68214L5.825 12.825L0.825001 7.68214" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    <div class="shop-more"><button class="btn btn-navy" type="button" id="see-all" aria-controls="carousel">Voir tout <svg class="arr-down" viewBox="0 0 11.65 13.65" fill="none" aria-hidden="true" focusable="false"><path d="M5.825 0.825V12.825M10.825 7.68214L5.825 12.825L0.825001 7.68214" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     <div class="fade fade-left" aria-hidden="true"><img src="../assets/v2/fondu-carrousel.png" alt="" width="509" height="68"></div>
     <div class="fade fade-right" aria-hidden="true"><img src="../assets/v2/fondu-carrousel.png" alt="" width="509" height="68"></div>
   </section>
 
+  <section class="eshop rise" id="e-shop" data-scroll="center" aria-labelledby="eshop-title" style="--rise:70px">
+    <h2 id="eshop-title">L'e-shop arrive bientôt !</h2>
+    <p>Abonne-toi à mes réseaux afin d'être au courant en priorité.</p>
+    <div class="eshop-actions">
+      <a class="btn btn-white btn-lg" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
+      <a class="btn btn-white btn-lg" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
+    </div>
+  </section>
+
+  <div class="about bubbles" id="a-propos" data-scroll="center">
+    <div class="bubble-layer" aria-hidden="true">
+      <span class="bubble" style="width:54px;height:54px;left:16.5%;top:390px;opacity:.5"></span>
+      <span class="bubble" style="width:clamp(56px,4.8vw,80px);height:clamp(56px,4.8vw,80px);left:82.5%;top:448px;opacity:.8"></span>
+      <span class="bubble" style="width:clamp(70px,6.5vw,108px);height:clamp(70px,6.5vw,108px);left:11.5%;top:806px;opacity:.8"></span>
+    </div>
+    <div class="bubble-layer front" aria-hidden="true">
+      <span class="bubble" style="width:clamp(60px,5.4vw,90px);height:clamp(60px,5.4vw,90px);left:73%;top:680px"></span>
+    </div>
   <section class="quote" aria-labelledby="quote-text">
     <p class="sr" id="quote-text">« Pour que chaque pièce vous ressemble. »</p>
     <svg class="quote-svg" viewBox="-1.7 -80.9 732.2 173.3" aria-hidden="true" focusable="false">
@@ -584,6 +712,17 @@
 </g></svg>
   </section>
 
+  <section class="wrap pauline" aria-label="Pauline, créatrice de Tête Fière">
+    <div class="pauline-text rv">
+      <p>Derrière Tête Fière, il y a moi, <strong>Pauline</strong>. Entre moules, pigments et coulées de résine, je façonne des pièces qui assument leur caractère.</p>
+      <p>Chaque création est fabriquée en petite série ou sur commande, avec le soin qu'on met aux choses qu'on garde longtemps.</p>
+    </div>
+    <div class="pauline-photo" data-aimant="repousse" data-aimant-push="7">
+      <img src="../assets/v2/pauline.webp" alt="Pauline, créatrice de Tête Fière" width="992" height="890" loading="lazy">
+    </div>
+  </section>
+  </div>
+
   <section class="wrap where" id="ou-me-trouver" aria-labelledby="where-title">
     <span class="pill pill-grey rv">Points de vente</span>
     <h2 id="where-title" class="rv">Mes bijoux, en vrai !</h2>
@@ -630,9 +769,8 @@
     <section class="outro" id="contact" aria-labelledby="outro-title">
       <h2 class="title-60 rise" style="--rise:90px" id="outro-title">Une demande de bijou&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
       <div class="outro-actions rise" style="--rise:70px;--d:.18s">
-        <a class="btn btn-navy btn-lg" href="mailto:info@tetefiere.be" target="_blank" rel="noopener">Me contacter</a>
-        <a class="btn btn-white btn-lg" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
-        <a class="btn btn-white btn-lg" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
+        <a class="btn btn-navy btn-xl" href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener">Me contacter</a>
+        <p class="outro-mail">Ou directement via <a href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener">info@tetefiere.be</a></p>
       </div>
     </section>
     <footer class="site-footer">
@@ -658,9 +796,20 @@
       </clipPath>
       </defs>
       </svg>
-      <p class="legal"><span>© 2026 · Tous droits réservés</span><a href="mailto:info@tetefiere.be" target="_blank" rel="noopener">info@tetefiere.be</a><span class="id">BE1038.022.140</span></p>
+      <p class="legal"><span>© 2026 · Tous droits réservés</span><a href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener">info@tetefiere.be</a><button class="legal-link" type="button" id="legal-open" aria-haspopup="dialog" aria-controls="mentions">Mentions légales</button></p>
     </footer>
   </div>
+
+<dialog class="modal" id="mentions" aria-labelledby="mentions-title">
+  <div class="modal-head">
+    <h2 id="mentions-title">Mentions légales</h2>
+    <button class="btn btn-navy modal-close" type="button" autofocus>Fermer <svg viewBox="0 0 11 11" fill="none" aria-hidden="true" focusable="false"><path d="M1 1l9 9M10 1l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <p>Tête Fière est une marque de SP Création.</p>
+    <p><strong>E-mail :</strong> <a href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener">info@tetefiere.be</a><br><strong>N° TVA :</strong> BE 1038.022.140</p>
+  </div>
+</dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -737,8 +886,10 @@
   window.addEventListener('touchstart', stopSmooth, { passive: true });
   function smoothTo(target) {
     function dest() {
-      var off = window.innerWidth > 600 ? Math.max(0, 96 - parseFloat(getComputedStyle(target).paddingTop)) : 0;
-      return Math.max(0, Math.min(H.scrollHeight - window.innerHeight, target.getBoundingClientRect().top + window.scrollY - off));
+      var r = target.getBoundingClientRect(), y;
+      if (target.getAttribute('data-scroll') === 'center') y = r.top + window.scrollY + r.height / 2 - window.innerHeight / 2;   // bloc centré dans l'écran
+      else y = r.top + window.scrollY - (window.innerWidth > 600 ? Math.max(0, 96 - parseFloat(getComputedStyle(target).paddingTop)) : 0);
+      return Math.max(0, Math.min(H.scrollHeight - window.innerHeight, y));
     }
     var y0 = window.scrollY, dist = Math.abs(dest() - y0);
     stopSmooth();
@@ -779,12 +930,13 @@
      Élan : chaque pixel défilé ajoute BUBBLE_KICK px/s de vitesse aux bulles, vers le haut quand on descend ;
      à l'arrêt, elles continuent sur leur lancée, ralentissent, redescendent et rebondissent. */
   var BUBBLE_KICK = 0.9;
-  var bubbleBox = document.querySelector('.bubbles');
-  if (!still && bubbleBox) {
-    var bubbles = [].map.call(bubbleBox.querySelectorAll('.bubble'), function (el, i) {
+  var bubbleBoxes = still ? [] : [].slice.call(document.querySelectorAll('.bubbles'));   // intro, et à propos
+  var bubbleGroups = bubbleBoxes.map(function (box) {
+    var g = { box: box, visible: true };
+    g.list = [].map.call(box.querySelectorAll('.bubble'), function (el, i) {
       var size = el.offsetWidth || 60;
       return {
-        el: el,
+        el: el, layer: el.parentNode,
         depth: 0.08 + Math.min(size, 170) / 170 * 0.22,   // 0,08 à 0,30
         ax: 10 + (i * 7) % 14, ay: 12 + (i * 5) % 12,      // amplitude de la dérive (px)
         px: 11000 + i * 2000, py: 8500 + i * 1500,         // périodes (ms) : lent, un peu plus vif qu'avant
@@ -793,18 +945,22 @@
         y: null, v: 0
       };
     });
-    var boxVisible = true;
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (e) { boxVisible = e[0].isIntersecting; }, { rootMargin: '200px 0px' }).observe(bubbleBox);
+      new IntersectionObserver(function (e) { g.visible = e[0].isIntersecting; }, { rootMargin: '200px 0px' }).observe(box);
     }
+    return g;
+  });
+  if (bubbleGroups.length) {
     var lastY = window.scrollY, lastT = performance.now();
     (function tick(now) {
       var vh = window.innerHeight, dt = Math.min((now - lastT) / 1000, 1 / 30); lastT = now;
       var dy = window.scrollY - lastY; lastY = window.scrollY;
-      if (boxVisible) {
-        var top = bubbleBox.querySelector('.bubble-layer').getBoundingClientRect().top;
-        bubbles.forEach(function (b) {
-          var par = (top + b.el.offsetTop + b.el.offsetHeight / 2 - vh / 2) * b.depth;   // nul quand la bulle est au centre de l'écran
+      bubbleGroups.forEach(function (g) {
+        if (!g.visible) return;
+        var tops = new Map();
+        g.list.forEach(function (b) {
+          if (!tops.has(b.layer)) tops.set(b.layer, b.layer.getBoundingClientRect().top);
+          var par = (tops.get(b.layer) + b.el.offsetTop + b.el.offsetHeight / 2 - vh / 2) * b.depth;   // nul quand la bulle est au centre de l'écran
           if (b.y === null) b.y = par;
           // Élan : le défilement pousse la bulle (vers le haut quand on descend), le ressort la ramène et elle rebondit.
           b.v -= dy * BUBBLE_KICK * b.depth / 0.3;
@@ -815,10 +971,108 @@
           var y = Math.cos(now / b.py * 2 * Math.PI + b.ph) * b.ay + b.y;
           b.el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
         });
-      }
+      });
       requestAnimationFrame(tick);
     })(lastT);
   }
+
+  /* « Voir tout » : le carrousel se transforme en grille (les cartes glissent vers leur nouvelle place).
+     La grille montre deux rangées et le début de la troisième, en fondu ; « Afficher plus » déroule tout le reste. */
+  var shop = document.getElementById('boutique'), seeAll = document.getElementById('see-all'), showAll = document.getElementById('show-all');
+  var EASE = 'cubic-bezier(.2,.8,.2,1)';
+  function cards() { return [].slice.call(track.querySelectorAll('.product')); }
+  function setLimit() {
+    // Limite : haut de la 3e rangée + 45 % d'une carte. Pas de limite s'il n'y a que deux rangées.
+    shop.classList.remove('limited');
+    var list = cards(), tops = [];
+    list.forEach(function (c) { var t = c.offsetTop; if (tops.indexOf(t) < 0) tops.push(t); });
+    if (tops.length <= 2) return false;
+    track.style.setProperty('--lim', Math.round(tops[2] + list[0].offsetHeight * 0.45) + 'px');
+    shop.classList.add('limited');
+    return true;
+  }
+  function animateIn(el, delay, from) {
+    el.style.transition = 'none';
+    el.style.transform = from;
+    el.style.opacity = '0';
+    el.getBoundingClientRect();
+    el.style.transition = 'transform .9s ' + EASE + ' ' + delay + 's, opacity .6s ease ' + delay + 's';
+    el.style.transform = ''; el.style.opacity = '';
+  }
+  function settle(els, ms) { setTimeout(function () { els.forEach(function (el) { el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; }); }, ms); }
+  seeAll.addEventListener('click', function () {
+    var list = cards(), first = new Map(), h0 = shop.offsetHeight;
+    list.forEach(function (c) { if (c.offsetParent) first.set(c, c.getBoundingClientRect()); });
+    track.scrollLeft = 0;
+    shop.classList.add('grid');
+    track.setAttribute('aria-label', "Nouveautés de l'atelier");
+    setLimit();
+    track.focus({ preventScroll: true });
+    if (still) return;
+    var h1 = shop.offsetHeight;
+    shop.style.height = h0 + 'px'; shop.getBoundingClientRect();
+    shop.style.transition = 'height .9s ' + EASE; shop.style.height = h1 + 'px';
+    setTimeout(function () { shop.style.height = ''; shop.style.transition = ''; }, 950);
+    var n = 0;
+    list.forEach(function (c) {
+      var r = c.getBoundingClientRect(), f = first.get(c);
+      if (f) {   // carte déjà visible : elle glisse de sa place dans le carrousel à sa place dans la grille
+        c.style.transition = 'none';
+        c.style.transform = 'translate(' + (f.left - r.left) + 'px,' + (f.top - r.top) + 'px)';
+        c.getBoundingClientRect();
+        c.style.transition = 'transform .9s ' + EASE;
+        c.style.transform = '';
+      } else animateIn(c, 0.3 + (n++) * 0.06, 'translateY(50px)');   // nouvelle carte : monte doucement
+    });
+    settle(list, 2000);
+  });
+  showAll.addEventListener('click', function () {
+    var lim = track.clientHeight, list = cards(), hidden = list.filter(function (c) { return c.offsetTop >= lim - 10; });
+    track.style.setProperty('--lim', track.scrollHeight + 'px');
+    shop.classList.add('opening');
+    track.focus({ preventScroll: true });
+    if (!still) hidden.forEach(function (c, i) { animateIn(c, 0.15 + i * 0.07, 'translateY(40px)'); });
+    setTimeout(function () { shop.classList.remove('limited', 'opening'); track.style.removeProperty('--lim'); }, still ? 0 : 1150);
+    settle(hidden, 2200);
+  });
+  window.addEventListener('resize', function () { if (shop.classList.contains('limited') && !shop.classList.contains('opening')) setLimit(); });
+
+  /* Mentions légales : modale (dialog), arrivée avec rebond. Fermeture : bouton, Échap, clic sur le fond.
+     Le focus entre dans la modale (bouton Fermer) et revient au lien à la fermeture. */
+  var modal = document.getElementById('mentions'), legalBtn = document.getElementById('legal-open'), closing = 0;
+  function openModal() {
+    if (modal.open) return;
+    var sb = window.innerWidth - document.documentElement.clientWidth;   // largeur de la barre de défilement, compensée
+    document.documentElement.classList.add('modal-lock');
+    if (sb > 0) document.body.style.paddingRight = sb + 'px';
+    modal.showModal();
+    modal.querySelector('.modal-close').focus();
+    requestAnimationFrame(function () { requestAnimationFrame(function () { modal.classList.add('open'); }); });
+  }
+  function closeModal() {
+    if (!modal.open || closing) return;
+    modal.classList.remove('open');
+    closing = setTimeout(function () { closing = 0; modal.close(); }, still ? 0 : 200);
+  }
+  modal.addEventListener('close', function () {
+    clearTimeout(closing); closing = 0;
+    modal.classList.remove('open');
+    document.documentElement.classList.remove('modal-lock');
+    document.body.style.paddingRight = '';
+    legalBtn.focus();
+  });
+  modal.addEventListener('cancel', function (e) { e.preventDefault(); closeModal(); });   // Échap : fermeture animée
+  modal.addEventListener('keydown', function (e) {   // Tab reste dans la modale (boucle du dernier au premier élément)
+    if (e.key !== 'Tab') return;
+    var f = [].filter.call(modal.querySelectorAll('a[href],button'), function (el) { return el.offsetParent; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  modal.querySelector('.modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });   // clic sur le fond
+  legalBtn.addEventListener('click', openModal);
 
   /* Menu mobile */
   var bBtn = document.querySelector('.burger-btn'), bMenu = document.getElementById('burger-menu');
