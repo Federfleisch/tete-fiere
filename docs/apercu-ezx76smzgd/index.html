@@ -348,7 +348,8 @@
   .check input:focus-visible + .box{outline:3px solid #3552D9;outline-offset:2px}
   .check.err .box{border-color:#E40609}
   .cform .send{margin-top:14px}
-  .cform .send[disabled]{opacity:.6;cursor:wait}
+  .cform .send[disabled]{opacity:.35;pointer-events:none}   /* tant que le formulaire n'est pas complet (pas de survol résine) */
+  .cform .send.sending{opacity:.6}
   .form-status{margin-top:12px;font-size:14px;line-height:1.4;text-align:center;color:#C00508}
   .form-status:empty{display:none}
   .form-status a{font-weight:700;text-decoration:underline}
@@ -1263,6 +1264,13 @@
   });
 
   var sendBtn = form.querySelector('.send'), sendLabel = sendBtn.innerHTML;
+  // « Envoyer » reste désactivé tant que l'e-mail, le sujet, le message et la case ne sont pas remplis.
+  function updateSend() { sendBtn.disabled = checks().some(function (c) { return c[2](); }); }
+  ['input', 'change'].forEach(function (ev) { form.addEventListener(ev, updateSend); });
+  updateSend();
+  window.addEventListener('pageshow', function (e) {   // retour arrière depuis FormSubmit : bouton rétabli
+    if (e.persisted) { sendBtn.classList.remove('sending'); sendBtn.innerHTML = sendLabel; updateSend(); }
+  });
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     status.textContent = '';
@@ -1285,7 +1293,7 @@
     form.elements._subject.value = 'Demande depuis le site Tête Fière : ' + fTopic.value;
     form.elements._next.value = location.origin + location.pathname + '?envoye=1';
     fEmail.value = fEmail.value.trim();
-    sendBtn.disabled = true; sendBtn.textContent = 'Envoi…';
+    sendBtn.disabled = true; sendBtn.classList.add('sending'); sendBtn.textContent = 'Envoi…';
     HTMLFormElement.prototype.submit.call(form);
   });
   // Retour de FormSubmit : message envoyé
