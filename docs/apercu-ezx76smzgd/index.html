@@ -230,8 +230,9 @@
   .photos-frame::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(129deg,#CDBFF7 5%,#F39CEC 105%);filter:blur(52px);opacity:.35}
   .photos-inner{display:flex;height:clamp(240px,42vw,428px);border:12px solid #fff;border-radius:24px;overflow:hidden;box-shadow:0 0 48px rgba(17,15,57,.02)}
   .photos-inner img{flex:1 1 0;min-width:0;width:50%;height:100%;object-fit:cover;object-position:50% 100%}
+  .photos-inner img + img{object-position:50% 0}   /* vitrine de Rose : l'enseigne visible (maquette du 18 novembre) */
   /* z-index : le bas de la carte déborde sur la section Pauline, qui sinon la recouvre et bloque le bouton Itinéraire. */
-  .contact{position:absolute;z-index:2;left:50%;top:calc(30px + (clamp(240px,42vw,428px) + 24px) / 2);width:350px;max-width:calc(100vw - 32px);transform:translate(calc(-50% + var(--tx,0px)),calc(-50% + var(--py,0px) + var(--ty,0px))) rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(var(--sx,0px) var(--sy,0px) 17px rgba(17,15,57,.1))}   /* --tx/--ty, --sx/--sy : carte repoussée par le curseur (bouton-aimant.js) */
+  .contact{position:absolute;z-index:2;left:min(100% + 37px,50% + 50vw - 215px);top:calc(30px + (clamp(240px,42vw,428px) + 24px) / 2 + 15px);width:350px;max-width:calc(100vw - 32px);transform:translate(calc(-50% + var(--tx,0px)),calc(-50% + var(--py,0px) + var(--ty,0px))) rotate(2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(var(--sx,0px) var(--sy,0px) 17px rgba(17,15,57,.1))}   /* --tx/--ty, --sx/--sy : carte repoussée par le curseur (bouton-aimant.js) */
   @keyframes drift{0%,100%{translate:0 0;rotate:0deg}30%{translate:5px -9px;rotate:.9deg}65%{translate:-4px -3px;rotate:-.6deg}}
   @media (prefers-reduced-motion:no-preference){.contact{animation:drift 15s ease-in-out infinite}}   /* 9 s avant le 18 novembre : trop rapide */
   .contact .head{display:flex;align-items:center;gap:14px}
@@ -486,6 +487,7 @@
     .quote-svg.quote-m{display:block;width:100%}
     .photos-inner{flex-direction:column;height:auto}
     .photos-inner img{width:100%;flex:none;height:260px}
+    .photos-inner img + img{object-position:50% 100%}
     .photos-inner img + img{height:220px}
     /* Carte de Rose centrée : photo, statut, nom, adresse, Itinéraire pleine largeur, réseaux dessous */
     .contact{width:min(294px,100%);margin-top:-96px;padding:28px;align-items:center;text-align:center;gap:14px}
