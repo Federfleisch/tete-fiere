@@ -324,7 +324,7 @@
   select.field{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:52px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='10' viewBox='0 0 18 10' fill='none'%3E%3Cpath d='M1 1l8 8 8-8' stroke='%23110F39' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 18px center}
   select.field.empty{color:#85848C}
   select.field option{color:var(--navy);font-weight:600}
-  .field-err{margin:-4px 0 2px 4px;font-size:14px;line-height:1.3;color:#C00508}
+  .field-err{margin:2px 0 4px 4px;font-size:14px;line-height:1.3;color:#C00508}
   .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
   .attach-sep{display:flex;align-items:center;gap:16px;margin:18px 42px 12px;font-size:13px;color:#85848C}
   .attach-sep::before,.attach-sep::after{content:'';flex:1;height:1px;background:#D9D9DE}
@@ -337,6 +337,8 @@
   .attach-list .rm svg{width:12px;height:12px}
   .btn-block{width:100%;padding-block:13px}
   .cform .add-files{margin-top:20px;flex-direction:column;gap:2px;padding-block:9px;white-space:normal;line-height:1.2}
+  #cf-files-err{margin-top:10px;transition:opacity .4s ease}
+  #cf-files-err.fade{opacity:0}
   .add-files .hint{font-size:14px;color:#85848C}
   .cform .attach + .add-files{margin-top:16px}
   .check{position:relative;display:flex;align-items:flex-start;gap:12px;margin-top:16px;font-size:15px;line-height:1.4;font-weight:600;cursor:pointer}
@@ -346,6 +348,7 @@
   .check input:checked + .box{background:#CDBFF7}
   .check input:checked + .box svg{opacity:1}
   .check input:focus-visible + .box{outline:3px solid #3552D9;outline-offset:2px}
+  .check .req{color:#D5119A}
   .check.err .box{border-color:#E40609}
   .cform .send{margin-top:14px}
   .cform .send[disabled]{opacity:.35;pointer-events:none}   /* tant que le formulaire n'est pas complet (pas de survol résine) */
@@ -859,11 +862,11 @@
     </div>
     <div class="fields">
       <label class="sr" for="cf-email">Votre e-mail</label>
-      <input class="field" id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Votre e-mail" required aria-describedby="cf-email-err">
+      <input class="field" id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Votre e-mail *" required aria-describedby="cf-email-err">
       <p class="field-err" id="cf-email-err" hidden></p>
       <label class="sr" for="cf-topic">Concerne</label>
       <select class="field empty" id="cf-topic" name="sujet" required aria-describedby="cf-topic-err">
-        <option value="" selected disabled>Concerne :</option>
+        <option value="" selected disabled>Concerne : *</option>
         <option>Demande de bijou</option>
         <option>Demande de collaboration</option>
         <option>Question générale</option>
@@ -871,7 +874,7 @@
       </select>
       <p class="field-err" id="cf-topic-err" hidden></p>
       <label class="sr" for="cf-msg">Message</label>
-      <textarea class="field" id="cf-msg" name="message" placeholder="Message…" required aria-describedby="cf-msg-err"></textarea>
+      <textarea class="field" id="cf-msg" name="message" placeholder="Message… *" required aria-describedby="cf-msg-err"></textarea>
       <p class="field-err" id="cf-msg-err" hidden></p>
       <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">
       <input type="hidden" name="_subject" value="Demande depuis le site Tête Fière">
@@ -889,7 +892,7 @@
     <label class="check" id="cf-consent-row">
       <input type="checkbox" name="consentement" id="cf-consent" value="oui" required aria-describedby="cf-consent-err">
       <span class="box" aria-hidden="true"><svg viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5l3.8 3.8L12.5 1.5" stroke="#4211D5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span>J'accepte que mes données (e-mail, message et pièces jointes) soient utilisées uniquement pour répondre à ma demande.</span>
+      <span>J'accepte que mes données (e-mail, message et pièces jointes) soient utilisées uniquement pour répondre à ma demande.<span class="req" aria-hidden="true"> *</span></span>
     </label>
     <p class="field-err" id="cf-consent-err" hidden></p>
     <button class="btn btn-navy btn-block send" type="submit">Envoyer <img class="arr-white" src="../assets/v2/fleche.svg" alt="" width="14" height="12"><img class="arr-navy" src="../assets/v2/fleche-navy.svg" alt="" width="14" height="12"></button>
@@ -1222,7 +1225,7 @@
   fTopic.addEventListener('change', function () { fTopic.classList.toggle('empty', !fTopic.value); });
 
   // Pièces jointes : aperçu (miniature pour les images), retrait, 5 fichiers et 10 Mo au total au plus.
-  var filesErr = document.getElementById('cf-files-err');
+  var filesErr = document.getElementById('cf-files-err'), filesErrT = 0;
   function renderFiles() {
     [].forEach.call(list.querySelectorAll('img.thumb'), function (im) { URL.revokeObjectURL(im.src); });
     list.innerHTML = '';
@@ -1260,6 +1263,12 @@
     filesErr.innerHTML = '';
     msgs.forEach(function (m, i) { if (i) filesErr.appendChild(document.createElement('br')); filesErr.appendChild(document.createTextNode(m)); });
     filesErr.hidden = !msgs.length;
+    filesErr.classList.remove('fade');
+    clearTimeout(filesErrT);
+    if (msgs.length) filesErrT = setTimeout(function () {   // le message s'efface après 3,5 s (fondu de 0,4 s)
+      filesErr.classList.add('fade');
+      filesErrT = setTimeout(function () { filesErr.hidden = true; filesErr.classList.remove('fade'); }, still ? 0 : 400);
+    }, 3500);
     renderFiles();
   });
 
