@@ -1288,23 +1288,57 @@
     if (firstBad) { firstBad.focus(); return; }
     if (form.elements._honey.value) return;   // piège à robots : champ invisible rempli
     // Envoi classique (multipart) vers FormSubmit, qui transmet les pièces jointes par e-mail sans les garder.
-    // Chaque fichier passe par un champ « attachment » caché ; FormSubmit renvoie ensuite sur cette page (?envoye=1).
+    // FormSubmit ne transmet qu'un fichier par message : au-delà d'un fichier, ils partent ensemble dans un ZIP
+    // (pieces-jointes.zip). FormSubmit renvoie ensuite sur cette page (?envoye=1).
     [].forEach.call(form.querySelectorAll('.att-out'), function (el) { el.remove(); });
-    try {
-      files.forEach(function (f) {
-        var dt = new DataTransfer(); dt.items.add(f);
-        var inp = document.createElement('input'); inp.type = 'file'; inp.name = 'attachment'; inp.className = 'att-out'; inp.hidden = true;
-        inp.files = dt.files; form.appendChild(inp);
-      });
-    } catch (err) {
-      if (files.length) { status.textContent = "Votre navigateur ne permet pas d'envoyer les pièces jointes ici. Retirez-les, ou écrivez-moi directement à info@tetefiere.be."; return; }
-    }
     form.elements._subject.value = 'Demande depuis le site Tête Fière : ' + fTopic.value;
     form.elements._next.value = location.origin + location.pathname + '?envoye=1';
     fEmail.value = fEmail.value.trim();
     sendBtn.disabled = true; sendBtn.classList.add('sending'); sendBtn.textContent = 'Envoi…';
-    HTMLFormElement.prototype.submit.call(form);
+    (files.length > 1 ? zipFiles(files) : Promise.resolve(files[0])).then(function (att) {
+      if (att) {
+        var dt = new DataTransfer(); dt.items.add(att);
+        var inp = document.createElement('input'); inp.type = 'file'; inp.name = 'attachment'; inp.className = 'att-out'; inp.hidden = true;
+        inp.files = dt.files; form.appendChild(inp);
+      }
+      HTMLFormElement.prototype.submit.call(form);
+    }).catch(function () {
+      sendBtn.classList.remove('sending'); sendBtn.innerHTML = sendLabel; updateSend();
+      status.textContent = "Les pièces jointes n'ont pas pu être préparées. Retirez-les, ou écrivez-moi directement à info@tetefiere.be.";
+    });
   });
+
+  /* ZIP sans compression (les photos sont déjà compressées) : en-têtes locaux, répertoire central, noms en UTF-8. */
+  var CRC = (function () { var t = new Uint32Array(256); for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u8) { var c = 0xFFFFFFFF; for (var i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zipFiles(list) {
+    return Promise.all(list.map(function (f) { return f.arrayBuffer(); })).then(function (bufs) {
+      var enc = new TextEncoder(), parts = [], central = [], offset = 0, used = {};
+      var d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+      var date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+      list.forEach(function (f, i) {
+        var name = f.name, n = 2, dot = name.lastIndexOf('.');
+        while (used[name.toLowerCase()]) name = (dot > 0 ? f.name.slice(0, dot) : f.name) + ' (' + (n++) + ')' + (dot > 0 ? f.name.slice(dot) : '');
+        used[name.toLowerCase()] = 1;
+        var nm = enc.encode(name), data = new Uint8Array(bufs[i]), crc = crc32(data), size = data.length;
+        var lh = new DataView(new ArrayBuffer(30));
+        lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+        lh.setUint16(10, time, true); lh.setUint16(12, date, true); lh.setUint32(14, crc, true);
+        lh.setUint32(18, size, true); lh.setUint32(22, size, true); lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+        var ch = new DataView(new ArrayBuffer(46));
+        ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+        ch.setUint16(12, time, true); ch.setUint16(14, date, true); ch.setUint32(16, crc, true); ch.setUint32(20, size, true); ch.setUint32(24, size, true);
+        ch.setUint16(28, nm.length, true); ch.setUint32(42, offset, true);
+        parts.push(lh, nm, data); central.push(ch, nm);
+        offset += 30 + nm.length + size;
+      });
+      var cdSize = central.reduce(function (a, x) { return a + x.byteLength; }, 0);
+      var end = new DataView(new ArrayBuffer(22));
+      end.setUint32(0, 0x06054b50, true); end.setUint16(8, list.length, true); end.setUint16(10, list.length, true);
+      end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+      return new File(parts.concat(central, [end]), 'pieces-jointes.zip', { type: 'application/zip' });
+    });
+  }
   // Retour de FormSubmit : message envoyé
   if (/[?&]envoye=1/.test(location.search)) {
     history.replaceState(null, '', location.pathname);
