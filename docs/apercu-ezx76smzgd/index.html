@@ -249,10 +249,10 @@
   .icon-btn:hover{background:var(--pink-100)}
 
   /* Tampon (dans le héro, en bas à droite) */
-  .stamp{position:absolute;z-index:2;right:clamp(16px,3.4vw,56px);bottom:clamp(20px,4cqh,48px);width:clamp(96px,9.4vw,156px);height:clamp(96px,9.4vw,156px);transform:rotate(11.01deg);filter:drop-shadow(0 10px 18px rgba(17,15,57,.22))}
+  .stamp{position:absolute;z-index:2;right:clamp(16px,3.4vw,56px);bottom:clamp(20px,4cqh,48px);width:clamp(96px,9.4vw,156px);height:clamp(96px,9.4vw,156px);filter:drop-shadow(0 10px 36px rgba(17,15,57,.22))}   /* tampon du 18 novembre : ombre Figma (y 10, flou 18) */
   @media (min-width:601px) and (max-width:860px){.stamp{bottom:118px}}   /* au-dessus de la pilule de navigation */
   .stamp img{position:absolute;inset:0;width:100%;height:100%}
-  .stamp .disc{inset:-3.63%;width:107.26%;height:107.26%;max-width:none}   /* sans max-width:none, le disque est écrasé en ovale */
+  .stamp .disc{inset:-5.29%;width:110.57%;height:110.57%;max-width:none}   /* sans max-width:none, le disque est écrasé en ovale */
   /* L'anneau tourne dans un cercle qui le coupe : sans cela, son carré en rotation élargit la page */
   .stamp .ring-clip{position:absolute;inset:0;overflow:hidden;border-radius:50%}
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -532,8 +532,8 @@
   <h1><img src="../assets/v2/logo-hero.svg" alt="Tête Fière !" width="624" height="328"></h1>
   <div class="stamp float" style="--dur:6.5s;--delay:-1.5s;--float:-8px" aria-hidden="true">
     <img class="disc" src="../assets/v2/tampon.svg" alt="" width="167" height="167">
-    <span class="ring-clip"><img class="ring" src="../assets/v2/tampon-texte.svg" alt="" width="156" height="156"></span>
-    <img src="../assets/v2/tampon-coeur.svg" alt="" width="156" height="156">
+    <span class="ring-clip"><img class="ring" src="../assets/v2/tampon-texte.svg" alt="" width="151" height="151"></span>
+    <img src="../assets/v2/tampon-coeur.svg" alt="" width="151" height="151">
   </div>
 </header>
 
