@@ -294,9 +294,9 @@
   .legal-link{padding:0;border:none;background:none;font:inherit;font-weight:600;letter-spacing:inherit;cursor:pointer}
 
   /* Modales (mentions légales, contact, message envoyé) : arrivée avec un léger rebond.
-     Fond : blanc 90 % et flou de 16,5 px ; modale : padding 20/24/18, ombre violette 8 % (specs Figma du 18 novembre). */
+     Fond : photo de résine floutée sur tout l'écran, voile blanc 90 % ; modale : padding 20/24/18, ombre violette 8 % (specs Figma du 18 novembre). */
   .modal{width:min(441px,100% - 32px);max-width:none;max-height:calc(100% - 32px);margin:auto;padding:20px 24px 18px;border:none;border-radius:32px;background:#fff;color:var(--navy);box-shadow:0 30px 70px rgba(66,17,213,.08);overflow:hidden auto;overscroll-behavior:contain}
-  .modal::backdrop{background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(16.5px);backdrop-filter:blur(16.5px)}   /* valeurs Figma de Denis */
+  .modal::backdrop{background:linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)),#fff url('../assets/v2/fond-modale.jpg') center/cover no-repeat}   /* photo de résine floutée (version réduite et floutée de main-background.jpg, 4 Ko) sous un voile blanc 90 % */
   @media (prefers-reduced-motion:no-preference){
     .modal{opacity:0;scale:.82;translate:0 24px;transition:opacity .2s ease,scale .2s ease-in,translate .2s ease-in}
     .modal::backdrop{opacity:0;transition:opacity .3s ease}
