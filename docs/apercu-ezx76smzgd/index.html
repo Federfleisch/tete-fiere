@@ -233,7 +233,7 @@
   /* z-index : le bas de la carte déborde sur la section Pauline, qui sinon la recouvre et bloque le bouton Itinéraire. */
   .contact{position:absolute;z-index:2;left:43.5%;top:325px;width:350px;max-width:calc(100vw - 32px);transform:translate(var(--tx,0px),calc(var(--py,0px) + var(--ty,0px))) rotate(-2deg);background:#fff;border-radius:44px;padding:40px;display:flex;flex-direction:column;gap:17px;text-align:left;filter:drop-shadow(var(--sx,0px) var(--sy,0px) 17px rgba(17,15,57,.1))}   /* --tx/--ty, --sx/--sy : carte repoussée par le curseur (bouton-aimant.js) */
   @keyframes drift{0%,100%{translate:0 0;rotate:0deg}30%{translate:5px -9px;rotate:.9deg}65%{translate:-4px -3px;rotate:-.6deg}}
-  @media (prefers-reduced-motion:no-preference){.contact{animation:drift 9s ease-in-out infinite}}
+  @media (prefers-reduced-motion:no-preference){.contact{animation:drift 15s ease-in-out infinite}}   /* 9 s avant le 18 novembre : trop rapide */
   .contact .head{display:flex;align-items:center;gap:14px}
   .contact .head img{width:60px;height:60px;border-radius:50%;object-fit:cover;flex:none}
   .contact .name{font-family:var(--f-display);font-weight:500;font-size:30px;line-height:30px;letter-spacing:-.3px}
@@ -276,14 +276,16 @@
   .finale-bubbles .big{z-index:2}   /* …sauf la grosse, posée sur le bord du pied de page */
   .outro{position:relative;padding:clamp(88px,11vw,170px) var(--gutter) clamp(112px,13vw,200px);display:flex;flex-direction:column;align-items:center;gap:clamp(28px,4vw,44px);text-align:center}
   .outro h2{position:relative;z-index:1;text-wrap:balance}
-  .outro-actions{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;width:100%}
-  .outro-actions .btn{width:min(490px,100%)}
-  .outro-mail{font-size:16px;line-height:1.4;color:var(--ink)}
-  .outro-mail a{color:var(--navy);font-weight:700}
-  .outro-mail a:hover{text-decoration:underline}
+  /* Contact (maquette du 18 novembre) : « Me contacter » avec l'adresse dessous, puis Instagram et Facebook, sur 520 px */
+  .outro-actions{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:24px;width:min(520px,100%)}
+  .btn-contact{width:100%;flex-direction:column;gap:4px;padding:24px 40px;font-size:24px;line-height:28px;letter-spacing:-.24px;white-space:normal}
+  .btn-contact .mail{font-family:var(--f-body);font-weight:400;font-size:19px;line-height:24px;letter-spacing:0;color:rgba(255,255,255,.5)}
+  .btn-navy.btn-contact:not(.rb):hover .mail{color:rgba(17,15,57,.55)}
+  .outro-social{display:flex;gap:24px;width:100%}
+  .outro-social .btn{flex:1 1 0;min-width:0;padding-inline:24px}
   .btn-white{gap:12px}
   .btn-white img{width:auto;height:auto;margin-block:-4px}   /* l'icône ne doit pas agrandir le bouton (Large H59) */
-  @media (max-width:520px){.eshop-actions{width:100%;flex-direction:column;gap:14px}.eshop-actions .btn{width:100%;min-width:0}}
+  @media (max-width:520px){.eshop-actions{width:100%;flex-direction:column;gap:14px}.eshop-actions .btn{width:100%;min-width:0}.outro-social{flex-direction:column;gap:14px}.btn-contact{padding:20px 24px;font-size:21px}.btn-contact .mail{font-size:16px}}
 
   /* Pied de page */
   .site-footer{position:relative;z-index:1;background:var(--navy);color:#B9B5DC;border-radius:clamp(36px,5vw,72px) clamp(36px,5vw,72px) 0 0;padding:clamp(52px,6vw,80px) var(--gutter) clamp(40px,4vw,52px);display:flex;flex-direction:column;align-items:center;gap:30px;text-align:center}
@@ -438,6 +440,7 @@
     .bloc1{padding:72px 0 64px;gap:48px}
     .btn-xl{padding:19px 38px;gap:8px;font-size:18px;letter-spacing:-.18px}
     .btn.btn-xl img{width:12px;height:10px}
+    .btn-white.btn-xl img{width:auto;height:auto}   /* icônes Instagram et Facebook à leur taille */
     .shop{padding:72px 0 200px}
     .carousel-nav{position:static;order:3;justify-content:center;margin-top:24px}
     .shop{display:flex;flex-direction:column}
@@ -812,8 +815,11 @@
     <section class="outro" id="contact" aria-labelledby="outro-title">
       <h2 class="title-60 rise" style="--rise:90px" id="outro-title">Une demande de bijou&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
       <div class="outro-actions rise" style="--rise:70px;--d:.18s">
-        <a class="btn btn-navy btn-xl" href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener" data-contact aria-haspopup="dialog">Me contacter</a>
-        <p class="outro-mail">Ou directement via <a href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener">info@tetefiere.be</a></p>
+        <a class="btn btn-navy btn-contact" href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener" data-contact aria-haspopup="dialog"><span>Me contacter</span><span class="mail">info@tetefiere.be</span></a>
+        <div class="outro-social">
+          <a class="btn btn-white btn-xl btn-social" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
+          <a class="btn btn-white btn-xl btn-social" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
+        </div>
       </div>
     </section>
     <footer class="site-footer">
