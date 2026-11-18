@@ -297,7 +297,7 @@
 
   /* Modales (mentions légales, contact, message envoyé) : arrivée avec un léger rebond.
      Fond : photo de résine floutée sur tout l'écran, voile blanc 90 % ; modale : padding 20/24/18, ombre violette 8 % (specs Figma du 18 novembre). */
-  .modal{width:min(441px,100% - 32px);max-width:none;max-height:calc(100% - 32px);margin:auto;padding:20px 24px 18px;border:none;border-radius:32px;background:#fff;color:var(--navy);box-shadow:0 30px 70px rgba(66,17,213,.08);overflow:hidden auto;overscroll-behavior:contain}
+  .modal{width:min(445px,100% - 32px);max-width:none;max-height:calc(100% - 32px);margin:auto;padding:20px 24px 18px;border:2px solid transparent;border-radius:34px;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,rgba(247,169,223,.55),rgba(205,191,247,.55) 50%,rgba(156,200,243,.55)) border-box;color:var(--navy);box-shadow:0 30px 70px rgba(66,17,213,.08);overflow:hidden auto;overscroll-behavior:contain}
   .modal::backdrop{background:linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)),#fff url('../assets/v2/fond-modale.jpg') center/cover no-repeat}   /* photo de résine floutée (version réduite et floutée de main-background.jpg, 4 Ko) sous un voile blanc 90 % */
   @media (prefers-reduced-motion:no-preference){
     .modal{opacity:0;scale:.82;translate:0 24px;transition:opacity .2s ease,scale .2s ease-in,translate .2s ease-in}
@@ -354,13 +354,27 @@
   .check.err .box{border-color:#E40609}
   .cform .send{margin-top:14px}
   .cform .send[disabled]{opacity:.35;pointer-events:none}   /* tant que le formulaire n'est pas complet (pas de survol résine) */
-  .cform .send.sending{opacity:.6}
+  /* Envoi en cours : le bouton reste plein, « Envoi » et ses trois points qui sautillent, des bulles montent dedans */
+  .cform .send.sending{opacity:1;position:relative;overflow:hidden;isolation:isolate;background:var(--navy);color:#fff}
+  .sending-label{position:relative;z-index:2;display:inline-flex;align-items:baseline}
+  .sending-label .dots{display:inline-flex;margin-left:1px}
+  .sending-label .dots i{font-style:normal;display:inline-block}
+  .send-bubbles{position:absolute;inset:0;z-index:1;pointer-events:none}
+  .send-bubbles span{position:absolute;bottom:-24px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff 0,#fff 12%,rgba(169,203,247,.9) 50%,rgba(247,169,223,.95) 100%);box-shadow:0 0 8px rgba(247,169,223,.45);opacity:0}
+  @media (prefers-reduced-motion:no-preference){
+    .sending-label .dots i{animation:dot-hop 1.2s ease-in-out infinite}
+    .sending-label .dots i:nth-child(2){animation-delay:.15s}
+    .sending-label .dots i:nth-child(3){animation-delay:.3s}
+    .send-bubbles span{animation:bubble-up var(--t,2.6s) cubic-bezier(.35,0,.6,1) var(--dl,0s) infinite}
+  }
+  @keyframes dot-hop{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
+  @keyframes bubble-up{0%{transform:translate(0,0) scale(.6);opacity:0}15%{opacity:.85}50%{transform:translate(var(--dx,6px),-40px) scale(1)}85%{opacity:.7}100%{transform:translate(calc(var(--dx,6px) * -1),-84px) scale(1.1);opacity:0}}
   .form-status{margin-top:12px;font-size:14px;line-height:1.4;text-align:center;color:#C00508}
   .form-status:empty{display:none}
   .form-status a{font-weight:700;text-decoration:underline}
 
   /* Message envoyé */
-  .modal-sent{width:min(538px,100% - 32px);padding:32px;text-align:center}
+  .modal-sent{width:min(542px,100% - 32px);padding:32px;text-align:center}
   .modal-sent h2{font-weight:600}
   .modal-sent p{margin-top:12px;font-size:19px;line-height:1.45}
   .modal-sent .sign{margin-top:14px;font-style:italic}
@@ -885,7 +899,7 @@
       <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">
       <input type="hidden" name="_subject" value="Demande depuis le site Tête Fière">
       <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_template" value="basic">
+      <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_autoresponse" value="Merci à vous pour votre message ! Je reviens vers vous dans les meilleurs délais. Pauline, Tête Fière">
       <input type="hidden" name="_next" value="">
     </div>
@@ -1301,7 +1315,14 @@
     form.elements._subject.value = 'Demande depuis le site Tête Fière : ' + fTopic.value;
     form.elements._next.value = location.origin + location.pathname + '?envoye=1';
     fEmail.value = fEmail.value.trim();
-    sendBtn.disabled = true; sendBtn.classList.add('sending'); sendBtn.textContent = 'Envoi…';
+    sendBtn.disabled = true; sendBtn.classList.add('sending');
+    sendBtn.innerHTML = '<span class="sending-label">Envoi<span class="dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></span><span class="send-bubbles" aria-hidden="true"></span>';
+    var bubbleBox = sendBtn.querySelector('.send-bubbles');
+    for (var bi = 0; bi < 14; bi++) {   // bulles de tailles, places et rythmes différents
+      var bb = document.createElement('span'), sz = 6 + Math.random() * 14;
+      bb.style.cssText = 'width:' + sz.toFixed(1) + 'px;height:' + sz.toFixed(1) + 'px;left:' + (2 + Math.random() * 94).toFixed(1) + '%;--t:' + (1.8 + Math.random() * 1.6).toFixed(2) + 's;--dl:' + (-Math.random() * 3).toFixed(2) + 's;--dx:' + (Math.random() * 16 - 8).toFixed(1) + 'px';
+      bubbleBox.appendChild(bb);
+    }
     (files.length > 1 ? zipFiles(files) : Promise.resolve(files[0])).then(function (att) {
       if (att) {
         var dt = new DataTransfer(); dt.items.add(att);
