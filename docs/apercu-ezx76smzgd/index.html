@@ -212,8 +212,8 @@
   .pauline{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:clamp(40px,5vw,72px);padding:16px 0 150px}
   .pauline-text{width:min(450px,100%);display:flex;flex-direction:column;gap:35px;font-family:var(--f-display);font-size:23px;line-height:1.6;letter-spacing:-.1px}
   .pauline-text strong{font-weight:600}
-  .pauline-photo{flex:none;width:clamp(260px,25vw,410px);aspect-ratio:1;border-radius:50%;overflow:hidden;transform:translate(var(--tx,0px),calc(var(--py,0px) + var(--ty,0px)));filter:drop-shadow(var(--sx,0px) calc(10px + var(--sy,0px)) 24px rgba(17,15,57,.1))}
-  .pauline-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;border-radius:50%}
+  .pauline-photo{--ps:clamp(260px,25vw,410px);flex:none;width:var(--ps);height:var(--ps);border-radius:50%;transform:translate(var(--tx,0px),calc(var(--py,0px) + var(--ty,0px)));filter:drop-shadow(var(--sx,0px) calc(10px + var(--sy,0px)) 24px rgba(17,15,57,.1))}
+  .pauline-photo img{display:block;width:100%;height:100%;max-width:none;object-fit:cover;border-radius:50%;clip-path:circle(50% at 50% 50%)}   /* cercle parfait, même sous Safari (découpe sur l'image, pas sur le cadre filtré) */
   @keyframes drift-soft{0%,100%{translate:0 0;rotate:0deg}35%{translate:4px -7px;rotate:.5deg}70%{translate:-3px -2px;rotate:-.4deg}}
   @media (prefers-reduced-motion:no-preference){.pauline-photo{animation:drift-soft 10s ease-in-out infinite}}
   .bubble-layer.front{z-index:3}
@@ -276,8 +276,8 @@
   .finale-bubbles .big{z-index:2}   /* …sauf la grosse, posée sur le bord du pied de page */
   .outro{position:relative;padding:clamp(88px,11vw,170px) var(--gutter) clamp(112px,13vw,200px);display:flex;flex-direction:column;align-items:center;gap:clamp(28px,4vw,44px);text-align:center}
   .outro h2{position:relative;z-index:1;text-wrap:balance}
-  /* Contact (maquette du 18 novembre) : « Me contacter » avec l'adresse dessous, puis Instagram et Facebook, sur 520 px */
-  .outro-actions{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:24px;width:min(520px,100%)}
+  /* Contact (maquette du 18 novembre) : « Me contacter » avec l'adresse dessous, puis Instagram et Facebook (286 px chacun) */
+  .outro-actions{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:24px;width:min(596px,100%)}   /* 2 × 286 + 24 */
   .btn-contact{width:100%;flex-direction:column;gap:4px;padding:24px 40px;font-size:24px;line-height:28px;letter-spacing:-.24px;white-space:normal}
   .btn-contact .mail{font-family:var(--f-body);font-weight:400;font-size:19px;line-height:24px;letter-spacing:0;color:rgba(255,255,255,.5)}
   .btn-navy.btn-contact:not(.rb):hover .mail{color:rgba(17,15,57,.55)}
@@ -473,7 +473,7 @@
     .eshop{padding:40px 24px;border-radius:32px}
     .btn-white.btn-social{padding:19px 38px}
     .pauline-text{font-size:19px;gap:24px}
-    .pauline-photo{width:min(280px,80vw)}
+    .pauline-photo{--ps:min(280px,80vw)}
     .value{border-radius:24px;padding:24px}
     .value .icon{width:48px;height:48px}
     .value h3{font-size:20px;letter-spacing:-.2px}
@@ -570,7 +570,7 @@
         <h2>Des pièces uniques,<br>portées avec <span class="grad">fierté</span></h2>
         <div class="actions">
           <a class="btn btn-navy btn-xl" href="#boutique">Voir les nouveautés <img class="arr-white" src="../assets/v2/fleche.svg" alt="" width="18" height="15"><img class="arr-navy" src="../assets/v2/fleche-navy.svg" alt="" width="18" height="15"></a>
-          <a class="btn btn-ghost btn-xl" href="#contact">Imaginer ma pièce</a>
+          <a class="btn btn-ghost btn-xl" href="#contact" data-contact data-topic="Demande de bijou" aria-haspopup="dialog">Imaginer ma pièce</a>
         </div>
       </div>
       <div class="values">
@@ -778,7 +778,7 @@
       <p>Chaque création est fabriquée en petite série ou sur commande, avec le soin qu'on met aux choses qu'on garde longtemps.</p>
     </div>
     <div class="pauline-photo" data-aimant="repousse" data-aimant-push="7">
-      <img src="../assets/v2/pauline.webp" alt="Pauline, créatrice de Tête Fière" width="992" height="890" loading="lazy">
+      <img src="../assets/v2/pauline-ronde.webp" alt="Pauline, créatrice de Tête Fière" width="856" height="856" loading="lazy">
     </div>
   </section>
   </div>
@@ -1216,7 +1216,10 @@
   [].forEach.call(document.querySelectorAll('[data-contact]'), function (a) {
     a.addEventListener('click', function (e) {
       if (!window.HTMLDialogElement || e.metaKey || e.ctrlKey || e.shiftKey) return;   // sinon : le mailto reste le secours
-      e.preventDefault(); contact.open(a);
+      e.preventDefault();
+      var topic = a.getAttribute('data-topic');   // sujet déjà choisi (« Imaginer ma pièce » : Demande de bijou)
+      if (topic) { fTopic.value = topic; fTopic.classList.remove('empty'); if (fTopic.getAttribute('aria-invalid') === 'true') setErr(fTopic, null, ''); updateSend(); }
+      contact.open(a);
     });
   });
   var fEmail = document.getElementById('cf-email'), fTopic = document.getElementById('cf-topic'), fMsg = document.getElementById('cf-msg');
