@@ -8,6 +8,12 @@
 <meta name="description" content="Créées avec le cœur, portées avec fierté. Boucles d'oreilles artisanales en résine, faites à la main.">
 <link rel="preload" as="image" href="../assets/main-background.jpg">
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('arrive')}catch(e){}</script>
+<!-- Favicon (essai du 18 novembre) : bulle -->
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="../assets/favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../assets/favicon/android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/favicon/apple-touch-icon-180x180.png">
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/fredoka-latin-600-normal.woff2" crossorigin>
 <style>
   @font-face{font-family:'Fredoka';font-weight:400;font-style:normal;font-display:swap;src:url('../assets/fonts/fredoka-latin-400-normal.woff2') format('woff2')}
@@ -170,16 +176,13 @@
   .shop .fade-left.on{opacity:1}
   .shop .fade img{position:absolute;left:50%;top:50%;width:509px;height:68px;max-width:none;transform:translate(-50%,-50%) rotate(-90deg)}
   .product{flex:none;width:276px;scroll-snap-align:start;background:#fff;border-radius:32px;padding:10px 10px 18px;display:flex;flex-direction:column;gap:16px;box-shadow:0 8px 30px rgba(17,15,57,.07)}
-  .product .img{position:relative;height:320px;border-radius:24px;padding:16px;overflow:hidden;flex:none}
+  .product .img{position:relative;height:366px;border-radius:24px;padding:16px;overflow:hidden;flex:none}
   .product .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .product .img .pill{position:relative}
   .product .infos{padding:0 10px;display:flex;flex-direction:column;gap:2px}
   .product .name{font-family:var(--f-display);font-weight:500;font-size:21px;letter-spacing:-.21px}
   .product .kind{font-size:14px;color:var(--ink)}
-  .product .price-row{height:45px;display:flex;align-items:center;justify-content:space-between}
-  .product .price{font-family:var(--f-display);font-weight:500;font-size:22px;letter-spacing:-.22px}
-  .product .price.demo{filter:blur(5px);opacity:.3;user-select:none}   /* variante « demo » : prix flouté, 30 % */
-  /* « Voir tout » : le carrousel devient une grille (classe .grid) ; « Afficher plus » montre le reste (classe .all).
+    /* « Voir tout » : le carrousel devient une grille (classe .grid) ; « Afficher plus » montre le reste (classe .all).
      Les cartes .more n'existent que dans la grille. */
   .shop .product.more{display:none}
   .shop.grid .product.more{display:flex}
@@ -193,7 +196,6 @@
   .grid-more{display:none;position:relative;z-index:3;justify-content:center;margin-top:-62px}
   .shop.grid.limited .grid-more{display:flex;transition:opacity .3s ease}
   .shop.grid.opening .grid-more{opacity:0;pointer-events:none}
-  .add{width:48px;height:48px;border-radius:24px;border:none;background:var(--pink-200);display:flex;align-items:center;justify-content:center;cursor:not-allowed;opacity:.3;filter:blur(2px)}   /* flouté, 30 % */
 
   /* Bloc e-shop : carte blanche posée à cheval sur le bas de la boutique */
   .eshop{position:relative;z-index:3;width:min(770px,100% - 2 * var(--gutter));margin:-145px auto 0;padding:52px 40px 56px;border-radius:48px;background:#fff;box-shadow:0 20px 60px rgba(66,54,160,.1);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
@@ -530,84 +532,68 @@
     <div class="carousel" id="carousel" tabindex="0" role="region" aria-label="Nouveautés de l'atelier, défilement horizontal">
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-pink">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill pill-purple">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill pill-pink">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product">
           <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <!-- Cartes visibles seulement dans la grille (« Voir tout ») : copies provisoires des 8 premières -->
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill pill-purple">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill pill-pink">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-fleur-rose.jpg" alt="Boucles d'oreilles fleur en résine rose posées sur une pierre" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-feuille.jpg" alt="Boucles d'oreilles feuille en résine verte" width="900" height="1200" loading="lazy"><span class="pill pill-purple">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-prisme.jpg" alt="Boucles d'oreilles en résine bleue et rose" width="900" height="1200" loading="lazy"><span class="pill pill-blue">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
         <article class="product more">
           <div class="img"><img src="../assets/v2/boucles-fleur-violette.jpg" alt="Boucles d'oreilles fleur en résine rose sur un tissu violet" width="900" height="1200" loading="lazy"><span class="pill">Label</span></div>
-          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p>
-            <div class="price-row"><p class="price demo" aria-hidden="true">24 €</p><button class="add" type="button" aria-disabled="true" aria-label="Ajouter Boucles Fleur au panier (bientôt disponible)"><img src="../assets/v2/panier.svg" alt="" width="20" height="20"></button></div></div>
+          <div class="infos"><h3 class="name">Boucles Fleur</h3><p class="kind">Résine</p></div>
         </article>
     </div>
     <div class="grid-more"><button class="btn btn-navy" type="button" id="show-all">Afficher plus <svg class="arr-down" viewBox="0 0 11.65 13.65" fill="none" aria-hidden="true" focusable="false"><path d="M5.825 0.825V12.825M10.825 7.68214L5.825 12.825L0.825001 7.68214" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
@@ -618,7 +604,7 @@
 
   <section class="eshop rise" id="e-shop" data-scroll="center" aria-labelledby="eshop-title" style="--rise:70px">
     <h2 id="eshop-title">L'e-shop arrive bientôt !</h2>
-    <p>Abonne-toi à mes réseaux afin d'être au courant en priorité.</p>
+    <p>Abonnez-vous à mes réseaux afin d'être au courant en priorité.</p>
     <div class="eshop-actions">
       <a class="btn btn-white btn-lg" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
       <a class="btn btn-white btn-lg" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
@@ -807,7 +793,7 @@
   </div>
   <div class="modal-body">
     <p>Tête Fière est une marque de SP Création.</p>
-    <p><strong>E-mail :</strong> <a href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener">info@tetefiere.be</a><br><strong>N° TVA :</strong> BE 1038.022.140</p>
+    <p><strong>Titulaire :</strong> Pauline Savoia<br><strong>Adresse :</strong> Rue Meura 10, 4217 Héron, Belgique<br><strong>E-mail :</strong> <a href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener">info@tetefiere.be</a><br><strong>N° TVA :</strong> BE 1038.022.140</p>
   </div>
 </dialog>
 
@@ -1093,9 +1079,6 @@
     toast.classList.add('show');
     clearTimeout(t); t = setTimeout(function () { toast.classList.remove('show'); }, 2400);
   }
-  document.querySelectorAll('.add').forEach(function (b) {
-    b.addEventListener('click', function () { soon('Le panier arrive bientôt.'); });
-  });
 
   /* Défilement : menu collant, carte de Rose, fin de page (un seul calcul par image) */
   var hero = document.querySelector('.hero'), nav = document.querySelector('.nav');
