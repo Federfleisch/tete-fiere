@@ -446,7 +446,7 @@
     .quote{padding:80px 16px 56px}
     .where{padding-bottom:80px}
     .pauline{flex-direction:column;gap:40px;padding-bottom:100px}
-    .pauline-text{text-align:center}
+    .pauline-photo{order:-1}   /* maquette mobile : photo au-dessus du texte, aligné à gauche */
     .finale-bubbles .big{right:4%;width:92px!important;height:92px!important;bottom:calc(var(--foot-h,277px) - 30px)!important}
   }
   @media (max-width:600px){
@@ -473,15 +473,17 @@
     .intro .actions .btn{width:100%}
     .eshop{padding:40px 24px;border-radius:32px}
     .btn-white.btn-social{padding:19px 38px}
-    .pauline-text{font-size:19px;gap:24px}
-    .pauline-photo{--ps:min(280px,80vw)}
+    .pauline-text{font-size:22px;gap:28px}   /* maquette mobile : texte presque aussi grand que sur desktop */
+    .eshop h2{font-size:30px}
+    .pauline-photo{--ps:min(210px,60vw)}
+    .shop-more{display:none}   /* maquette mobile : flèches seules, pas de « Voir tout » */
     .value{border-radius:24px;padding:24px}
     .value .icon{width:48px;height:48px}
     .value h3{font-size:20px;letter-spacing:-.2px}
     .value p{font-size:15px;line-height:24px}
     .shop-head .title-60{font-size:30px;letter-spacing:-.3px}
     .where h2{font-size:min(58px,15.2vw)}
-    .outro h2{font-size:min(54px,14.2vw)}   /* 4 lignes comme la maquette (58 px en fait 5 à 380 px) */
+    .outro h2{font-size:min(54px,14.2vw)}   /* maquette mobile : 5 lignes */
     .quote{padding:96px 16px 72px}
     .quote-svg{display:none}
     .quote-svg.quote-m{display:block;width:100%}
@@ -586,9 +588,9 @@
           <p style="color:var(--navy)">La résine ne se répète pas : votre modèle n'existe qu'une fois.</p>
         </div>
         <div class="value rv" style="background:var(--purple-100)">
-          <span class="icon float" style="--dur:7.4s;--delay:-4.1s;--float:-8px"><img src="../assets/v2/icone-sur-mesure.svg" alt="" width="28" height="28"></span>
-          <h3>Fait en Belgique</h3>
-          <p style="color:var(--purple-600)">Chaque bijou naît dans mon atelier, en Belgique.</p>
+          <span class="icon float" style="--dur:7.4s;--delay:-4.1s;--float:-8px"><img src="../assets/v2/icone-resine.svg" alt="" width="28" height="28"></span>
+          <h3>Résine de qualité</h3>
+          <p style="color:var(--purple-600)">Je choisis une résine solide et durable, pour des bijoux qui gardent leur éclat.</p>
         </div>
       </div>
     </section>
@@ -828,7 +830,7 @@
       <span class="bubble big float" style="width:clamp(110px,10vw,166px);height:clamp(110px,10vw,166px);right:15%;bottom:calc(var(--foot-h,277px) - 26px);opacity:.9;--v:820px;--dur:7.2s;--delay:-5s;--float:-14px"></span>
     </div>
     <section class="outro" id="contact" aria-labelledby="outro-title">
-      <h2 class="title-60 rise" style="--rise:90px" id="outro-title">Une demande de bijou&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
+      <h2 class="title-60 rise" style="--rise:90px" id="outro-title">Une question sur mes bijoux&nbsp;?<br>Envie de collaborer&nbsp;?</h2>
       <div class="outro-actions rise" style="--rise:70px;--d:.18s">
         <a class="btn btn-navy btn-contact" href="mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re" target="_blank" rel="noopener" data-contact aria-haspopup="dialog"><span>Me contacter</span><span class="mail">info@tetefiere.be</span></a>
         <div class="outro-social">
