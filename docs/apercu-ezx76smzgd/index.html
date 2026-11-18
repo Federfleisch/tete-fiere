@@ -7,7 +7,7 @@
 <title>Tête Fière | Boucles d'oreilles artisanales</title>
 <meta name="description" content="Créées avec le cœur, portées avec fierté. Boucles d'oreilles artisanales en résine, faites à la main.">
 <link rel="preload" as="image" href="../assets/main-background.jpg">
-<script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('arrive')}catch(e){}</script>
+<script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/[?&]envoye=1/.test(location.search))document.documentElement.classList.add('arrive')}catch(e){}</script>
 <!-- Favicon (essai du 18 novembre) : bulle -->
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png">
@@ -203,6 +203,9 @@
   .eshop{position:relative;z-index:3;width:min(770px,100% - 2 * var(--gutter));margin:-145px auto 0;padding:52px 40px 56px;border-radius:48px;background:#fff;box-shadow:0 20px 60px rgba(66,54,160,.1);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
   .eshop h2{font-family:var(--f-display);font-weight:600;font-size:clamp(24px,2.2vw,30px);line-height:1.2;letter-spacing:-.3px}
   .eshop p{font-size:17px;line-height:1.5;color:var(--ink)}
+  /* Boutons sociaux de l'e-shop (Figma) : padding 28/54, gap 12, fond blanc 20 %, ombre 0 11 46 violette 16 %.
+     L'ombre garde l'écart au curseur du bouton aimanté (--sx, --sy : 16 px au repos, d'où le -5 px). */
+  .btn-white.btn-social{padding:28px 54px;gap:12px;background:rgba(255,255,255,.2);box-shadow:var(--sx) calc(var(--sy) - 5px) 46px rgba(66,17,213,.16)}
   .eshop-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:30px;margin-top:26px}
 
   /* À propos : Pauline. La photo flotte et s'écarte du curseur (comme la carte de Rose, en plus doux). */
@@ -292,7 +295,7 @@
 
   /* Modales (mentions légales, contact, message envoyé) : arrivée avec un léger rebond.
      Fond : blanc 90 % et flou de 16,5 px ; modale : padding 20/24/18, ombre violette 8 % (specs Figma du 18 novembre). */
-  .modal{width:min(441px,100% - 32px);max-width:none;max-height:calc(100% - 32px);margin:auto;padding:20px 24px 18px;border:none;border-radius:32px;background:#fff;color:var(--navy);box-shadow:0 30px 70px rgba(66,17,213,.08);overflow:auto;overscroll-behavior:contain}
+  .modal{width:min(441px,100% - 32px);max-width:none;max-height:calc(100% - 32px);margin:auto;padding:20px 24px 18px;border:none;border-radius:32px;background:#fff;color:var(--navy);box-shadow:0 30px 70px rgba(66,17,213,.08);overflow:hidden auto;overscroll-behavior:contain}
   .modal::backdrop{background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(16.5px);backdrop-filter:blur(16.5px)}   /* valeurs Figma de Denis */
   @media (prefers-reduced-motion:no-preference){
     .modal{opacity:0;scale:.82;translate:0 24px;transition:opacity .2s ease,scale .2s ease-in,translate .2s ease-in}
@@ -314,9 +317,9 @@
   .cform .fields{display:flex;flex-direction:column;gap:10px}
   .field{display:block;width:100%;min-height:51px;padding:12px 16px;border:2.5px solid transparent;border-radius:10px;background:#EEEEEE;color:var(--navy);font-family:var(--f-body);font-weight:600;font-size:17px;line-height:1.4;transition:background .2s ease,border-color .2s ease}
   .field::placeholder{color:#85848C;opacity:1}
-  .field:hover{background:#E8E8EA}
-  .field:focus,.field:focus-visible{outline:none;background:#fff;border-color:#D5119A}
-  .field.err{border-color:#E40609;background:#fff}
+  .field:hover{background-color:#E8E8EA}
+  .field:focus,.field:focus-visible{outline:none;background-color:#fff;border-color:#D5119A}
+  .field.err{border-color:#E40609;background-color:#fff}
   textarea.field{height:103px;resize:vertical}
   select.field{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:52px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='10' viewBox='0 0 18 10' fill='none'%3E%3Cpath d='M1 1l8 8 8-8' stroke='%23110F39' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 18px center}
   select.field.empty{color:#85848C}
@@ -326,14 +329,15 @@
   .attach-sep{display:flex;align-items:center;gap:16px;margin:18px 42px 12px;font-size:13px;color:#85848C}
   .attach-sep::before,.attach-sep::after{content:'';flex:1;height:1px;background:#D9D9DE}
   .attach-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-  .attach-list li{display:flex;align-items:center;gap:14px;height:50px;border-radius:10px;background:#EEEEEE;overflow:hidden}
-  .attach-list .thumb{flex:none;width:50px;height:50px;object-fit:cover;background:repeating-conic-gradient(#E2E2E2 0 25%,#F2F2F2 0 50%) 0 0/10px 10px;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:600;font-size:11px;color:#85848C}
-  .attach-list .fname{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:17px}
-  .attach-list .rm{flex:none;width:40px;height:40px;margin-right:6px;padding:0;border:none;border-radius:50%;background:transparent;color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s ease}
+  .attach-list li{display:flex;align-items:center;gap:14px;height:50px;border:2px solid var(--grey-200);border-radius:10px;background:#EEEEEE;overflow:hidden}
+  .attach-list .thumb{flex:none;width:46px;height:46px;object-fit:cover;background:repeating-conic-gradient(#E2E2E2 0 25%,#F2F2F2 0 50%) 0 0/10px 10px;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:600;font-size:11px;color:#85848C}
+  .attach-list .fname{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:14px}
+  .attach-list .rm{flex:none;width:40px;height:40px;margin-right:4px;padding:0;border:none;border-radius:50%;background:transparent;color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s ease}
   .attach-list .rm:hover{background:#fff}
   .attach-list .rm svg{width:12px;height:12px}
   .btn-block{width:100%;padding-block:13px}
-  .cform .add-files{margin-top:20px}
+  .cform .add-files{margin-top:20px;flex-direction:column;gap:2px;padding-block:9px;white-space:normal;line-height:1.2}
+  .add-files .hint{font-size:14px;color:#85848C}
   .cform .attach + .add-files{margin-top:16px}
   .check{position:relative;display:flex;align-items:flex-start;gap:12px;margin-top:16px;font-size:15px;line-height:1.4;font-weight:600;cursor:pointer}
   .check input{position:absolute;opacity:0;width:25px;height:25px;margin:0;cursor:pointer}
@@ -354,7 +358,6 @@
   .modal-sent h2{font-weight:600}
   .modal-sent p{margin-top:12px;font-size:19px;line-height:1.45}
   .modal-sent .sign{margin-top:14px;font-style:italic}
-  .modal-sent .demo-note{margin-top:14px;font-size:13px;color:#85848C}
   .modal-sent .btn{margin-top:30px}
   html.modal-lock{overflow:hidden}
 
@@ -447,6 +450,7 @@
     .intro .actions{flex-direction:column;gap:12px}
     .intro .actions .btn{width:100%}
     .eshop{padding:40px 24px;border-radius:32px}
+    .btn-white.btn-social{padding:19px 38px}
     .pauline-text{font-size:19px;gap:24px}
     .pauline-photo{width:min(280px,80vw)}
     .value{border-radius:24px;padding:24px}
@@ -655,8 +659,8 @@
     <h2 id="eshop-title">L'e-shop arrive bientôt !</h2>
     <p>Abonnez-vous à mes réseaux afin d'être au courant en priorité.</p>
     <div class="eshop-actions">
-      <a class="btn btn-white btn-xl" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
-      <a class="btn btn-white btn-xl" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
+      <a class="btn btn-white btn-xl btn-social" href="https://www.instagram.com/tetefiere" target="_blank" rel="noopener">Instagram <img src="../assets/v2/instagram.svg" alt="" width="22" height="22"></a>
+      <a class="btn btn-white btn-xl btn-social" href="https://www.facebook.com/profile.php?id=61594998808551" target="_blank" rel="noopener">Facebook <img src="../assets/v2/facebook.svg" alt="" width="25" height="25"></a>
     </div>
   </section>
 
@@ -847,7 +851,7 @@
 </dialog>
 
 <dialog class="modal" id="contact-modal" aria-labelledby="contact-title">
-  <form class="cform" id="contact-form" novalidate data-endpoint="">
+  <form class="cform" id="contact-form" novalidate method="post" enctype="multipart/form-data" action="https://formsubmit.co/info@tetefiere.be">
     <div class="modal-head">
       <h2 id="contact-title">Me contacter</h2>
       <button class="btn btn-ghost modal-close" type="button">Fermer <svg viewBox="0 0 11 11" fill="none" aria-hidden="true" focusable="false"><path d="M1 1l9 9M10 1l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -868,14 +872,18 @@
       <label class="sr" for="cf-msg">Message</label>
       <textarea class="field" id="cf-msg" name="message" placeholder="Message…" required aria-describedby="cf-msg-err"></textarea>
       <p class="field-err" id="cf-msg-err" hidden></p>
-      <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">
+      <input type="hidden" name="_subject" value="Demande depuis le site Tête Fière">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" value="">
     </div>
     <div class="attach" hidden>
       <p class="attach-sep">Pièces jointes</p>
       <ul class="attach-list" aria-label="Pièces jointes"></ul>
     </div>
-    <input class="sr" type="file" id="cf-files" multiple accept="image/*,.pdf" tabindex="-1" aria-hidden="true">
-    <button class="btn btn-ghost btn-block add-files" type="button" id="cf-add">Ajouter des pièces jointes…</button>
+    <input type="file" id="cf-files" multiple accept="image/*,.pdf" tabindex="-1" aria-hidden="true" hidden autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">
+    <button class="btn btn-ghost btn-block add-files" type="button" id="cf-add" aria-describedby="cf-files-err">Ajouter des pièces jointes… <span class="hint">(max 10Mo)</span></button>
     <p class="field-err" id="cf-files-err" hidden></p>
     <label class="check" id="cf-consent-row">
       <input type="checkbox" name="consentement" id="cf-consent" value="oui" required aria-describedby="cf-consent-err">
@@ -892,7 +900,6 @@
   <h2 id="sent-title">Message envoyé</h2>
   <p>Merci à vous pour votre message&nbsp;!<br>Je reviens vers vous dans les meilleurs délais.</p>
   <p class="sign">Pauline</p>
-  <p class="demo-note" hidden>Aperçu : le message n'a pas été envoyé, le service d'envoi n'est pas encore branché.</p>
   <button class="btn btn-navy btn-block modal-close" type="button">Retour au site</button>
 </dialog>
 
@@ -1223,6 +1230,10 @@
       if (/^image\//.test(f.type)) { thumb = document.createElement('img'); thumb.src = URL.createObjectURL(f); thumb.alt = ''; }
       else { thumb = document.createElement('span'); thumb.textContent = (f.name.split('.').pop() || '').slice(0, 4).toUpperCase(); thumb.setAttribute('aria-hidden', 'true'); }
       thumb.className = 'thumb';
+      if (thumb.tagName === 'IMG') thumb.onerror = function () {   // aperçu impossible (format non lu) : l'extension à la place
+        var sp = document.createElement('span'); sp.className = 'thumb'; sp.setAttribute('aria-hidden', 'true');
+        sp.textContent = (f.name.split('.').pop() || '').slice(0, 4).toUpperCase(); thumb.replaceWith(sp);
+      };
       var name = document.createElement('span'); name.className = 'fname'; name.textContent = f.name; name.title = f.name;
       var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'rm'; rm.setAttribute('aria-label', 'Retirer ' + f.name);
       rm.innerHTML = '<svg viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M1 1l9 9M10 1l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -1237,14 +1248,17 @@
   }
   document.getElementById('cf-add').addEventListener('click', function () { fFiles.click(); });
   fFiles.addEventListener('change', function () {
-    var msg = '', total = files.reduce(function (a, f) { return a + f.size; }, 0);
+    var msgs = [], total = files.reduce(function (a, f) { return a + f.size; }, 0);
     [].forEach.call(fFiles.files, function (f) {
-      if (files.length >= MAX_FILES) { msg = 'Cinq fichiers au maximum.'; return; }
-      if (total + f.size > MAX_BYTES) { msg = 'Les fichiers ne peuvent pas dépasser 10 Mo au total.'; return; }
+      if (!/^image\//.test(f.type) && !/\.pdf$/i.test(f.name)) { msgs.push('« ' + f.name + ' » n\'est pas accepté : images ou PDF uniquement.'); return; }
+      if (files.length >= MAX_FILES) { msgs.push('« ' + f.name + ' » n\'a pas été ajouté : cinq fichiers au maximum.'); return; }
+      if (total + f.size > MAX_BYTES) { msgs.push('« ' + f.name + ' » n\'a pas été ajouté : les pièces jointes dépassent 10 Mo au total.'); return; }
       files.push(f); total += f.size;
     });
     fFiles.value = '';
-    filesErr.textContent = msg; filesErr.hidden = !msg;
+    filesErr.innerHTML = '';
+    msgs.forEach(function (m, i) { if (i) filesErr.appendChild(document.createElement('br')); filesErr.appendChild(document.createTextNode(m)); });
+    filesErr.hidden = !msgs.length;
     renderFiles();
   });
 
@@ -1255,31 +1269,30 @@
     var firstBad = null;
     checks().forEach(function (c) { var m = c[2](); setErr(c[0], c[1], m); if (m && !firstBad) firstBad = c[0]; });
     if (firstBad) { firstBad.focus(); return; }
-    if (form.elements._gotcha.value) return;   // piège à robots : champ invisible rempli
-    var data = new FormData();
-    data.append('email', fEmail.value.trim());
-    data.append('sujet', fTopic.value);
-    data.append('message', fMsg.value.trim());
-    data.append('consentement', 'oui');
-    data.append('_subject', 'Demande depuis le site Tête Fière : ' + fTopic.value);
-    files.forEach(function (f) { data.append('attachment', f, f.name); });
+    if (form.elements._honey.value) return;   // piège à robots : champ invisible rempli
+    // Envoi classique (multipart) vers FormSubmit, qui transmet les pièces jointes par e-mail sans les garder.
+    // Chaque fichier passe par un champ « attachment » caché ; FormSubmit renvoie ensuite sur cette page (?envoye=1).
+    [].forEach.call(form.querySelectorAll('.att-out'), function (el) { el.remove(); });
+    try {
+      files.forEach(function (f) {
+        var dt = new DataTransfer(); dt.items.add(f);
+        var inp = document.createElement('input'); inp.type = 'file'; inp.name = 'attachment'; inp.className = 'att-out'; inp.hidden = true;
+        inp.files = dt.files; form.appendChild(inp);
+      });
+    } catch (err) {
+      if (files.length) { status.textContent = "Votre navigateur ne permet pas d'envoyer les pièces jointes ici. Retirez-les, ou écrivez-moi directement à info@tetefiere.be."; return; }
+    }
+    form.elements._subject.value = 'Demande depuis le site Tête Fière : ' + fTopic.value;
+    form.elements._next.value = location.origin + location.pathname + '?envoye=1';
+    fEmail.value = fEmail.value.trim();
     sendBtn.disabled = true; sendBtn.textContent = 'Envoi…';
-    var endpoint = form.getAttribute('data-endpoint');
-    var job = endpoint
-      ? fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } }).then(function (r) { if (!r.ok) throw new Error(r.status); })
-      : new Promise(function (ok) { setTimeout(ok, 700); });
-    sentDlg.querySelector('.demo-note').hidden = !!endpoint;
-    job.then(function () {
-      var from = contact.opener();
-      contact.close(true);
-      setTimeout(function () {
-        sent.open(from);
-        form.reset(); fTopic.classList.add('empty'); files = []; renderFiles(); filesErr.hidden = true;
-      }, still ? 0 : 220);
-    }).catch(function () {
-      status.innerHTML = "L'envoi n'a pas fonctionné. Réessayez, ou écrivez-moi directement à <a href=\"mailto:info@tetefiere.be?subject=Demande%20depuis%20le%20site%20T%C3%AAte%20Fi%C3%A8re\">info@tetefiere.be</a>.";
-    }).then(function () { sendBtn.disabled = false; sendBtn.innerHTML = sendLabel; });
+    HTMLFormElement.prototype.submit.call(form);
   });
+  // Retour de FormSubmit : message envoyé
+  if (/[?&]envoye=1/.test(location.search)) {
+    history.replaceState(null, '', location.pathname);
+    window.addEventListener('load', function () { setTimeout(function () { sent.open(document.querySelector('[data-contact]')); }, 300); });
+  }
 
 
   /* Menu mobile */
