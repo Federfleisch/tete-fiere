@@ -106,23 +106,23 @@
   .hero h1{position:relative;z-index:1;width:min(624px,80vw);width:min(624px,80vw,130cqh);margin:0}
   .hero h1 img{width:100%;height:auto}
   /* Écran bas (téléphone en paysage) : le logo se place au-dessus de la pilule de navigation */
-  @media (min-width:601px) and (max-height:560px){.hero{padding-bottom:85px}.hero h1{width:min(624px,80vw,calc((100cqh - 20px) * 1.9))}}
+  @media (min-width:601px) and (max-height:560px){.hero{padding-bottom:110px}.hero h1{width:min(624px,80vw,calc((100cqh - 20px) * 1.9))}}
   /* Fond de résine WebGL (même script que la page d'attente) : se superpose au fond CSS identique une fois prêt */
   .hero canvas.resine{position:absolute;left:0;right:0;top:calc(-1 * var(--topbar-h));width:100%;height:calc(100% + var(--topbar-h) + var(--slider-h));display:block;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s ease}
   .hero canvas.resine.is-ready{opacity:1}
 
   /* Navigation : posée en bas du héro ; une fois le héro quitté, elle redescend du haut de l'écran et reste collée (classe .is-fixed, posée en JS) */
   .nav-sticky{position:relative;height:0;z-index:60}
-  .nav{position:absolute;left:50%;top:-85px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(17,15,57,.16);white-space:nowrap}
+  .nav{position:absolute;left:50%;top:-102px;transform:translateX(-50%);display:flex;gap:12px;align-items:stretch;padding:12px;border-radius:999px;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(17,15,57,.16);white-space:nowrap}
   .nav.is-fixed{position:fixed;top:16px}
   @keyframes navIn{from{translate:0 -160%;opacity:0}to{translate:0 0;opacity:1}}
   @media (prefers-reduced-motion:no-preference){.nav.is-fixed{animation:navIn .5s cubic-bezier(.2,.8,.2,1)}}
-  .nav a,.nav .cart{display:inline-flex;align-items:center;padding:10px 16px;border-radius:999px;background:#fff;font-family:var(--f-display);font-weight:500;font-size:16px;line-height:1;color:var(--navy)}
+  .nav a,.nav .cart{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:12px 24px;border-radius:999px;background:#fff;font-family:var(--f-display);font-weight:500;font-size:18px;line-height:22px;color:var(--navy)}   /* Figma du 18 novembre : pilule 70 px, liens 46 px, texte 18 */
   .nav a{transition:background .2s ease}
   .nav a:hover{background:var(--pink-100)}
-  .nav .cart{position:relative;padding:9px 9px 9px 18px;gap:10px;height:37px;color:rgba(17,15,57,.3)}   /* bientôt : 30 % ; mène au bloc e-shop */
-  @media (min-width:601px) and (max-width:760px){.nav{gap:6px;padding:8px}.nav a,.nav .cart{font-size:15px;padding-inline:12px}}
-  .nav .cart .soon{position:absolute;left:24px;top:-15px;transform:rotate(3deg);background:var(--pink-100);color:#B2639A;font-family:var(--f-body);font-weight:700;font-size:11px;line-height:1;padding:7px 10px;border-radius:999px}
+  .nav .cart{position:relative;gap:10px;color:rgba(17,15,57,.3)}   /* bientôt : 30 % ; mène au bloc e-shop */
+  @media (min-width:601px) and (max-width:820px){.nav{gap:6px;padding:8px}.nav a,.nav .cart{height:40px;font-size:15px;padding:10px 12px}}
+  .nav .cart .soon{position:absolute;left:24.5px;top:-11.5px;transform:rotate(3deg);background:var(--pink-100);color:#B2639A;font-family:var(--f-body);font-weight:700;font-size:11px;line-height:1;padding:7px 10px;border-radius:999px}
 
   /* Bandeau défilant */
   .slider{overflow:hidden;background:var(--navy);padding:clamp(22px,2.6vw,42px) 0}
@@ -249,7 +249,7 @@
 
   /* Tampon (dans le héro, en bas à droite) */
   .stamp{position:absolute;z-index:2;right:clamp(16px,3.4vw,56px);bottom:clamp(20px,4cqh,48px);width:clamp(96px,9.4vw,156px);height:clamp(96px,9.4vw,156px);transform:rotate(11.01deg);filter:drop-shadow(0 10px 18px rgba(17,15,57,.22))}
-  @media (min-width:601px) and (max-width:860px){.stamp{bottom:104px}}   /* au-dessus de la pilule de navigation */
+  @media (min-width:601px) and (max-width:860px){.stamp{bottom:118px}}   /* au-dessus de la pilule de navigation */
   .stamp img{position:absolute;inset:0;width:100%;height:100%}
   .stamp .disc{inset:-3.63%;width:107.26%;height:107.26%;max-width:none}   /* sans max-width:none, le disque est écrasé en ovale */
   /* L'anneau tourne dans un cercle qui le coupe : sans cela, son carré en rotation élargit la page */
