@@ -29,7 +29,9 @@
     // Variante « repousse » (carte de Rose)
     cardPush: 10,   // écart maximal de la carte, en px (16 avant le 18 novembre) ; data-aimant-push pour un autre élément
     cardReach: 140, // portée à l'approche, en px
-    cardShadow: 0.6 // part de l'écart ajoutée à l'ombre, dans le même sens (elle suit la carte)
+    cardShadow: 0.6, // part de l'écart ajoutée à l'ombre, dans le même sens (elle suit la carte)
+    cardStiffness: 110, // ressort plus lent que celui des boutons (carte de Rose trop vive, 18 novembre)
+    cardDamping: 11
   };
 
   var mq = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
@@ -62,8 +64,9 @@
     var moving = false;
     btns.forEach(function (b) {
       target(b);
-      var ax = A.stiffness * (b.tx - b.x) - A.damping * b.vx;
-      var ay = A.stiffness * (b.ty - b.y) - A.damping * b.vy;
+      var K = b.repel ? A.cardStiffness : A.stiffness, C = b.repel ? A.cardDamping : A.damping;
+      var ax = K * (b.tx - b.x) - C * b.vx;
+      var ay = K * (b.ty - b.y) - C * b.vy;
       b.vx += ax * dt; b.vy += ay * dt; b.x += b.vx * dt; b.y += b.vy * dt;
       var s = b.el.style;
       if (b.repel) {   // la carte s'écarte, l'ombre la suit un peu plus loin
