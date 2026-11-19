@@ -1139,19 +1139,20 @@
     shop.style.height = h0 + 'px'; shop.getBoundingClientRect();
     shop.style.transition = 'height .9s ' + EASE; shop.style.height = h1 + 'px';
     setTimeout(function () { shop.style.height = ''; shop.style.transition = ''; }, 950);
-    var n = 0;
-    list.forEach(function (c) {
-      var r = c.getBoundingClientRect(), f = first.get(c);
+    // Escalier : les cartes partent l'une après l'autre, dans l'ordre de la grille (gauche à droite, ligne par ligne)
+    var STEP = 0.07;
+    list.forEach(function (c, i) {
+      var r = c.getBoundingClientRect(), f = first.get(c), d = (i * STEP).toFixed(2) + 's';
       if (f) {   // carte déjà visible : elle glisse de sa place dans le carrousel à sa place dans la grille
         c.style.transition = 'none';
         c.style.transformOrigin = '0 0';   // la carte peut aussi changer de largeur (grille plus étroite)
         c.style.transform = 'translate(' + (f.left - r.left) + 'px,' + (f.top - r.top) + 'px) scale(' + (f.width / r.width).toFixed(4) + ',' + (f.height / r.height).toFixed(4) + ')';
         c.getBoundingClientRect();
-        c.style.transition = 'transform .9s ' + EASE;
+        c.style.transition = 'transform .8s ' + EASE + ' ' + d;
         c.style.transform = '';
-      } else animateIn(c, 0.3 + (n++) * 0.06, 'translateY(50px)');   // nouvelle carte : monte doucement
+      } else animateIn(c, i * STEP, 'translateY(50px)');   // nouvelle carte : monte doucement, à son tour
     });
-    settle(list, 2000);
+    settle(list, Math.round((list.length * STEP + 1) * 1000) + 200);
   });
   showAll.addEventListener('click', function () {
     var lim = track.clientHeight, list = cards(), hidden = list.filter(function (c) { return c.offsetTop >= lim - 10; });
